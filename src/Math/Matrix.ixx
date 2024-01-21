@@ -2,6 +2,7 @@ module;
 
 #include <cassert>
 #include <cmath>
+#include <vector>
 #include <array>
 #include <string>
 
@@ -104,18 +105,18 @@ export namespace Math
 				}
 			}
 		}
-		//template<typename T>
-		//constexpr explicit Mat(const std::vector<T>& vec) : m_data() {
-		//	for (size_t y = 0; y < Size_y; y++) {
-		//		for (size_t x = 0; x < Size_x; x++) {
-		//			//Memory layout differs from user expectation
-		//			if constexpr (column_major)
-		//				at(x, y) = Scalar(vec[Math::at<Size_y, column_major>(x, y)]);
-		//			else
-		//				at(x, y) = Scalar(vec[Math::at<Size_x, column_major>(x, y)]);
-		//		}
-		//	}
-		//}
+		template<typename T>
+		constexpr explicit Mat(const std::vector<T>& vec) : m_data() {
+			for (size_t y = 0; y < Size_y; y++) {
+				for (size_t x = 0; x < Size_x; x++) {
+					//Memory layout differs from user expectation
+					if constexpr (column_major)
+						at(x, y) = Scalar(vec[Math::at<Size_y, column_major>(x, y)]);
+					else
+						at(x, y) = Scalar(vec[Math::at<Size_x, column_major>(x, y)]);
+				}
+			}
+		}
 		template<ScalarT... Args>
 		constexpr explicit Mat(Args... args) noexcept {
 			static_assert(sizeof...(Args) == (Size_x * Size_y) || sizeof...(Args) == 1, "Invalid amount of parameters for this mat");

@@ -19,7 +19,7 @@ export namespace Math
 	struct snorm;
 
 	template<typename T>
-	concept ScalarT = std::is_arithmetic<T>::value || std::is_same_v<T, Math::half> || std::is_same_v<T, Math::unorm<uint8_t>> || std::is_same_v<T, Math::unorm<uint16_t>> || std::is_same_v<T, Math::unorm<uint32_t>> || std::is_same_v<T, Math::unorm<uint64_t>>
+	concept ScalarT = std::is_arithmetic_v<T> || std::is_same_v<T, Math::half> || std::is_same_v<T, Math::unorm<uint8_t>> || std::is_same_v<T, Math::unorm<uint16_t>> || std::is_same_v<T, Math::unorm<uint32_t>> || std::is_same_v<T, Math::unorm<uint64_t>>
 		|| std::is_same_v<T, Math::snorm<int8_t>> || std::is_same_v<T, Math::snorm<int16_t>> || std::is_same_v<T, Math::snorm<int32_t>> || std::is_same_v<T, Math::snorm<int64_t>>;
 
 	template<ScalarT S, ScalarT B>
