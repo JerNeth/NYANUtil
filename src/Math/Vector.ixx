@@ -3,6 +3,7 @@ module;
 #include <cassert>
 #include <cmath>
 #include <array>
+#include <vector>
 #include <string>
 
 export module NYANMath:Vector;
@@ -73,13 +74,13 @@ export namespace Math
 			for (size_t i = 0; i < Size; i++)
 				m_data[i] = list[i];
 		}
-		//template<ScalarT OtherScalar>
-		//constexpr explicit Vec(const std::vector<OtherScalar>& data) noexcept : m_data() {
-		//	for (size_t i = 0; i < min(Size, data.size()); i++)
-		//		m_data[i] = data[i];
-		//	for (size_t i = min(Size, data.size()); i < Size; i++)
-		//		m_data[i] = Scalar(0);
-		//}
+		template<ScalarT OtherScalar>
+		constexpr explicit Vec(const std::vector<OtherScalar>& data) noexcept : m_data() {
+			for (size_t i = 0; i < min(Size, data.size()); i++)
+				m_data[i] = data[i];
+			for (size_t i = min(Size, data.size()); i < Size; i++)
+				m_data[i] = Scalar(0);
+		}
 		constexpr friend inline bool operator==(const Vec& lhs, const Vec& rhs) noexcept {
 			for (size_t i = 0; i < Size; i++)
 				if (lhs.m_data[i] != rhs.m_data[i])

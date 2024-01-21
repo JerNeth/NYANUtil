@@ -46,10 +46,10 @@ export namespace Math
 			Scalar s2 = Scalar(2) / quaternion.squared_norm();
 			//auto normQuat = quaternion.normalize();
 
-			Scalar qr = quaternion.m_real;
-			Scalar qi = quaternion.m_imaginary[0];
-			Scalar qj = quaternion.m_imaginary[1];
-			Scalar qk = quaternion.m_imaginary[2];
+			Scalar qr = quaternion.get_real();
+			Scalar qi = quaternion.get_imaginary()[0];
+			Scalar qj = quaternion.get_imaginary()[1];
+			Scalar qk = quaternion.get_imaginary()[2];
 
 			at(0, 0) = 1 - s2 * (qj * qj + qk * qk);
 			at(0, 1) = s2 * (qi * qj + qk * qr);
