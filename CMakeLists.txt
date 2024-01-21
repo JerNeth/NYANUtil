@@ -6,7 +6,10 @@ cmake_policy(SET CMP0091 NEW)
 project(NYAN
         VERSION 0.0.1
         LANGUAGES CXX)
-include("UserSettings.txt")
+
+if(EXISTS "UserSettings.txt")
+    include("UserSettings.txt")
+endif()
 
 # ---------------------------------------------------------------------------
 # Options
