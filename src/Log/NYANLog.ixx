@@ -116,7 +116,7 @@ export namespace Utility
 		bool m_newLine = true;
 		static constexpr bool loggingEnabled = true;
 	public:
-		static uint32_t verbosity = static_cast<uint32_t>(Logger::Type::Verbose) | static_cast<uint32_t>(Logger::Type::Info) | static_cast<uint32_t>(Logger::Type::Warn) | static_cast<uint32_t>(Logger::Type::Error) | static_cast<uint32_t>(Logger::Type::Critical);
+		static constexpr uint32_t verbosity = static_cast<uint32_t>(Logger::Type::Verbose) | static_cast<uint32_t>(Logger::Type::Info) | static_cast<uint32_t>(Logger::Type::Warn) | static_cast<uint32_t>(Logger::Type::Error) | static_cast<uint32_t>(Logger::Type::Critical);
 		static Logger verbose() noexcept
 		{
 			return Logger{ Logger::Type::Verbose };
