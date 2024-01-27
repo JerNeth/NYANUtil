@@ -1,10 +1,10 @@
 module;
 
-
 #include <string_view>
 #include <source_location>
 #include <format>
 #include <iostream>
+
 export module NYANLog;
 
 export namespace Utility
@@ -12,11 +12,12 @@ export namespace Utility
 
 	class Logger {
 	public:
-		enum class Type {
-			Verbose,
-			Info,
-			Warn,
-			Error
+		enum class Type : uint32_t {
+			Verbose =	0b1,
+			Info =		0b10,
+			Warn =		0b100,
+			Error =		0b1000,
+			Critical =	0b10000,
 		};
 	private:
 
@@ -47,51 +48,57 @@ export namespace Utility
 			return *this;
 		}
 		~Logger() {
-			if (!m_newLine || !loggingEnabled)
+			if (!m_newLine || !loggingEnabled || !(verbosity & static_cast<uint32_t>(m_type)))
 				return;
 			stream() << '\n';
 		}
 		const Logger& message(const std::string_view message) const& {
 			if constexpr (loggingEnabled)
-				stream() << message;
+				if (verbosity & static_cast<uint32_t>(m_type))
+					stream() << message;
 			return *this;
 		}
 		Logger&& message(const std::string_view message)&& {
 			if constexpr (loggingEnabled)
-				stream() << message;
+				if (verbosity & static_cast<uint32_t>(m_type))
+					stream() << message;
 			return std::move(*this);
 		}
 		const Logger& location(const std::source_location location = std::source_location::current()) const& {
 			if constexpr (loggingEnabled)
-				stream() << "file: "
-				<< location.file_name() << "("
-				<< location.line() << ":"
-				<< location.column() << ") `"
-				<< location.function_name() << "`: ";
+				if (verbosity & static_cast<uint32_t>(m_type))
+					stream() << "file: "
+					<< location.file_name() << "("
+					<< location.line() << ":"
+					<< location.column() << ") `"
+					<< location.function_name() << "`: ";
 			//OutputDebugString(std::vformat(view, std::make_format_args(args...)));
 			return *this;
 		}
 		Logger&& location(const std::source_location location = std::source_location::current())&& {
 			if constexpr (loggingEnabled)
-				stream() << "file: "
-				<< location.file_name() << "("
-				<< location.line() << ":"
-				<< location.column() << ") `"
-				<< location.function_name() << "`: ";
+				if (verbosity & static_cast<uint32_t>(m_type))
+					stream() << "file: "
+					<< location.file_name() << "("
+					<< location.line() << ":"
+					<< location.column() << ") `"
+					<< location.function_name() << "`: ";
 			//OutputDebugString(std::vformat(view, std::make_format_args(args...)));
 			return std::move(*this);
 		}
 		template<typename ...Args>
 		const Logger& format(std::string_view view, Args&&... args) const& {
 			if constexpr (loggingEnabled)
-				stream() << std::vformat(view, std::make_format_args(args...));
+				if (verbosity & static_cast<uint32_t>(m_type))
+					stream() << std::vformat(view, std::make_format_args(args...));
 			//OutputDebugString(std::vformat(view, std::make_format_args(args...)));
 			return *this;
 		}
 		template<typename ...Args>
 		Logger&& format(std::string_view view, Args&&... args)&& {
 			if constexpr (loggingEnabled)
-				stream() << std::vformat(view, std::make_format_args(args...));
+				if(verbosity & static_cast<uint32_t>(m_type))
+					stream() << std::vformat(view, std::make_format_args(args...));
 			//OutputDebugString(std::vformat(view, std::make_format_args(args...)));
 			return std::move(*this);
 		}
@@ -108,8 +115,8 @@ export namespace Utility
 		Type m_type{ Type::Info };
 		bool m_newLine = true;
 		static constexpr bool loggingEnabled = true;
-
 	public:
+		static uint32_t verbosity = static_cast<uint32_t>(Logger::Type::Verbose) | static_cast<uint32_t>(Logger::Type::Info) | static_cast<uint32_t>(Logger::Type::Warn) | static_cast<uint32_t>(Logger::Type::Error) | static_cast<uint32_t>(Logger::Type::Critical);
 		static Logger verbose() noexcept
 		{
 			return Logger{ Logger::Type::Verbose };
@@ -126,6 +133,10 @@ export namespace Utility
 		{
 			return Logger{ Logger::Type::Error };
 		}
+		static Logger critical() noexcept
+		{
+			return Logger{ Logger::Type::Critical };
+		}
 		static Logger verbose_message(const std::string_view message)
 		{
 			return verbose().message(message);
@@ -141,6 +152,10 @@ export namespace Utility
 		static Logger error_message(const std::string_view message)
 		{
 			return error().message(message);
+		}
+		static Logger critical_message(const std::string_view message)
+		{
+			return critical().message(message);
 		}
 	};
 }
