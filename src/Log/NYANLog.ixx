@@ -7,9 +7,8 @@ module;
 
 export module NYANLog;
 
-export namespace Utility
+export namespace nyan::util::log
 {
-
 	class Logger {
 	public:
 		enum class Type : uint32_t {

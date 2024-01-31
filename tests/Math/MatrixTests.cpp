@@ -4,11 +4,11 @@ import NYANMath;
 #include <random>
 #include <array>
 
-namespace Math
+namespace nyan::util::math
 {
 
     TEST(Matrices, ViewMatrix) {
-        Math::vec3 a({ 0, 0, 1 }), b({ 0, 0, 1 }), c({ 0, 0, 1.001f }), d({ 0, 0, -1.0f }), e({ 0, 0, -1.001f });
+        vec3 a({ 0, 0, 1 }), b({ 0, 0, 1 }), c({ 0, 0, 1.001f }), d({ 0, 0, -1.0f }), e({ 0, 0, -1.001f });
 
         EXPECT_TRUE(close(a, a));
         EXPECT_TRUE(close(a, b));
@@ -150,7 +150,7 @@ namespace Math
     }
     //TEST(Matrices, rowMajor) {
 
-    //    Math::Mat<float, 3, 3, false> a(1, 1, 1,
+    //    Mat<float, 3, 3, false> a(1, 1, 1,
     //        0, 0, 0,
     //        0, 0, 0
     //    );
@@ -165,7 +165,7 @@ namespace Math
     //}
     //TEST(Matrices, colMajor) {
 
-    //    Math::Mat<float, 3, 3, true> a(1, 1, 1,
+    //    Mat<float, 3, 3, true> a(1, 1, 1,
     //        0, 0, 0,
     //        0, 0, 0
     //    );
@@ -198,8 +198,8 @@ namespace Math
             EXPECT_EQ(farVec, result1);
         }
         {
-            auto nearVecLeft = vec4(-tan(fov * 0.5 * Math::deg_to_rad) * near, 0, -near, 1);
-            auto nearVecRight = vec4(tan(fov * 0.5 * Math::deg_to_rad) * near, 0, -near, 1);
+            auto nearVecLeft = vec4(-tan(fov * 0.5 * deg_to_rad) * near, 0, -near, 1);
+            auto nearVecRight = vec4(tan(fov * 0.5 * deg_to_rad) * near, 0, -near, 1);
             auto result0 = vec4(-1, 0, 1, 1);
             auto result1 = vec4(1, 0, 1, 1);
             nearVecLeft = mat * nearVecLeft;
@@ -210,8 +210,8 @@ namespace Math
             EXPECT_EQ(nearVecRight, result1);
         }
         {
-            auto nearVecTop = vec4(0, tan(fov * 0.5 * Math::deg_to_rad) * near / aspect, -near, 1);
-            auto nearVecBot = vec4(0, -tan(fov * 0.5 * Math::deg_to_rad) * near / aspect, -near, 1);
+            auto nearVecTop = vec4(0, tan(fov * 0.5 * deg_to_rad) * near / aspect, -near, 1);
+            auto nearVecBot = vec4(0, -tan(fov * 0.5 * deg_to_rad) * near / aspect, -near, 1);
             auto result0 = vec4(0, -1, 1, 1);
             auto result1 = vec4(0, 1, 1, 1);
             nearVecTop = mat * nearVecTop;
@@ -242,8 +242,8 @@ namespace Math
             EXPECT_TRUE(close(farVec, result1));
         }
         {
-            auto nearVecLeft = vec4(-tan(fov * 0.5 * Math::deg_to_rad) * near, 0, -near, 1);
-            auto nearVecRight = vec4(tan(fov * 0.5 * Math::deg_to_rad) * near, 0, -near, 1);
+            auto nearVecLeft = vec4(-tan(fov * 0.5 * deg_to_rad) * near, 0, -near, 1);
+            auto nearVecRight = vec4(tan(fov * 0.5 * deg_to_rad) * near, 0, -near, 1);
             auto result0 = vec4(-1, 0, 0, 1);
             auto result1 = vec4(1, 0, 0, 1);
             nearVecLeft = mat * nearVecLeft;
@@ -254,8 +254,8 @@ namespace Math
             EXPECT_TRUE(close(nearVecRight, result1));
         }
         {
-            auto nearVecTop = vec4(0, tan(fov * 0.5 * Math::deg_to_rad) * near / aspect, -near, 1);
-            auto nearVecBot = vec4(0, -tan(fov * 0.5 * Math::deg_to_rad) * near / aspect, -near, 1);
+            auto nearVecTop = vec4(0, tan(fov * 0.5 * deg_to_rad) * near / aspect, -near, 1);
+            auto nearVecBot = vec4(0, -tan(fov * 0.5 * deg_to_rad) * near / aspect, -near, 1);
             auto result0 = vec4(0, -1, 0, 1);
             auto result1 = vec4(0, 1, 0, 1);
             nearVecTop = mat * nearVecTop;
@@ -423,9 +423,9 @@ namespace Math
                             0.0,
                             0.0,
                             1.0 };
-        Math::vec3 expected(5, 0, 0);
+        vec3 expected(5, 0, 0);
 
-        Math::mat44 mat{ 1.0000000221841605 ,
+        mat44 mat{ 1.0000000221841605 ,
                             0.0 ,
                             0.0,
                             0.0,
@@ -441,22 +441,22 @@ namespace Math
                             0.0,
                             0.0,
                             1.0 };
-        auto expectedMat = Math::Mat<float, 3, 3, true>::rotation_matrix(expected);
-        Math::mat33 matSmall;
-        Math::vec3 tmpX{ mat.col(0) };
-        Math::vec3 tmpY{ mat.col(1) };
-        Math::vec3 tmpZ{ mat.col(2) };
+        auto expectedMat = Mat<float, 3, 3, true>::rotation_matrix(expected);
+        mat33 matSmall;
+        vec3 tmpX{ mat.col(0) };
+        vec3 tmpY{ mat.col(1) };
+        vec3 tmpZ{ mat.col(2) };
         matSmall.set_col(tmpX, 0);
         matSmall.set_col(tmpY, 1);
         matSmall.set_col(tmpZ, 2);
         std::array vals{
-            Math::vec3(0, 0, 1),
-            Math::vec3(0, 1, 0),
-            Math::vec3(1, 0, 0)
+            vec3(0, 0, 1),
+            vec3(0, 1, 0),
+            vec3(1, 0, 0)
         };
-        Math::vec3 orientation = matSmall.euler();
-        Math::quat quaternion{ matSmall };
-        auto inferedMat = Math::Mat<float, 3, 3, true>::rotation_matrix(Math::vec3{ orientation });
+        vec3 orientation = matSmall.euler();
+        quat quaternion{ matSmall };
+        auto inferedMat = Mat<float, 3, 3, true>::rotation_matrix(vec3{ orientation });
         for (auto val : vals) {
             //  EXPECT_TRUE(close(matSmall * val, expectedMat * val)) << (matSmall * val).convert_to_string() << " not equal to " << (expectedMat * val).convert_to_string();
             //  EXPECT_TRUE(close(matSmall * val, quaternion * val)) << (matSmall * val).convert_to_string() << " not equal to " << (quaternion * val).convert_to_string();
@@ -480,10 +480,10 @@ namespace Math
                             -5.0,
                             0.0,
                             1.0 };
-        Math::vec3 expected(0, -12, 0);
+        vec3 expected(0, -12, 0);
 
 
-        Math::mat44 mat{ 0.97814764136552634 ,
+        mat44 mat{ 0.97814764136552634 ,
                             0.0 ,
                             0.20791169731909154,
                             0.0,
@@ -499,22 +499,22 @@ namespace Math
                             -5.0,
                             0.0,
                             1.0 };
-        auto expectedMat = Math::Mat<float, 3, 3, true>::rotation_matrix(expected);
-        Math::mat33 matSmall;
-        Math::vec3 tmpX{ mat.col(0) };
-        Math::vec3 tmpY{ mat.col(1) };
-        Math::vec3 tmpZ{ mat.col(2) };
+        auto expectedMat = Mat<float, 3, 3, true>::rotation_matrix(expected);
+        mat33 matSmall;
+        vec3 tmpX{ mat.col(0) };
+        vec3 tmpY{ mat.col(1) };
+        vec3 tmpZ{ mat.col(2) };
         matSmall.set_col(tmpX, 0);
         matSmall.set_col(tmpY, 1);
         matSmall.set_col(tmpZ, 2);
         std::array vals{
-            Math::vec3(0, 0, 1),
-            Math::vec3(0, 1, 0),
-            Math::vec3(1, 0, 0)
+            vec3(0, 0, 1),
+            vec3(0, 1, 0),
+            vec3(1, 0, 0)
         };
-        Math::vec3 orientation = matSmall.euler();
-        Math::quat quaternion{ matSmall };
-        auto inferedMat = Math::Mat<float, 3, 3, true>::rotation_matrix(Math::vec3{ orientation });
+        vec3 orientation = matSmall.euler();
+        quat quaternion{ matSmall };
+        auto inferedMat = Mat<float, 3, 3, true>::rotation_matrix(vec3{ orientation });
         for (auto val : vals) {
             // EXPECT_TRUE(close(matSmall * val, expectedMat * val)) << (matSmall * val).convert_to_string() << " not equal to " << (expectedMat * val).convert_to_string();
             // EXPECT_TRUE(close(matSmall * val, quaternion * val)) << (matSmall * val).convert_to_string() << " not equal to " << (quaternion * val).convert_to_string();
@@ -538,9 +538,9 @@ namespace Math
                             0.0,
                             -5.0,
                             1.0 };
-        Math::vec3 expected(0, 0, -17);
+        vec3 expected(0, 0, -17);
 
-        Math::mat44 mat{ 0.95630478637671223 ,
+        mat44 mat{ 0.95630478637671223 ,
                             -0.29237168909633660 ,
                             0.0,
                             0.0,
@@ -556,22 +556,22 @@ namespace Math
                             0.0,
                             -5.0,
                             1.0 };
-        auto expectedMat = Math::Mat<float, 3, 3, true>::rotation_matrix(expected);
-        Math::mat33 matSmall;
-        Math::vec3 tmpX{ mat.col(0) };
-        Math::vec3 tmpY{ mat.col(1) };
-        Math::vec3 tmpZ{ mat.col(2) };
+        auto expectedMat = Mat<float, 3, 3, true>::rotation_matrix(expected);
+        mat33 matSmall;
+        vec3 tmpX{ mat.col(0) };
+        vec3 tmpY{ mat.col(1) };
+        vec3 tmpZ{ mat.col(2) };
         matSmall.set_col(tmpX, 0);
         matSmall.set_col(tmpY, 1);
         matSmall.set_col(tmpZ, 2);
         std::array vals{
-            Math::vec3(0, 0, 1),
-            Math::vec3(0, 1, 0),
-            Math::vec3(1, 0, 0)
+            vec3(0, 0, 1),
+            vec3(0, 1, 0),
+            vec3(1, 0, 0)
         };
-        Math::vec3 orientation = matSmall.euler();
-        Math::quat quaternion{ matSmall };
-        auto inferedMat = Math::Mat<float, 3, 3, false>::rotation_matrix(Math::vec3{ orientation });
+        vec3 orientation = matSmall.euler();
+        quat quaternion{ matSmall };
+        auto inferedMat = Mat<float, 3, 3, false>::rotation_matrix(vec3{ orientation });
         for (auto val : vals) {
             // EXPECT_TRUE(close(matSmall * val, expectedMat * val)) << (matSmall * val).convert_to_string() << " not equal to " << (expectedMat * val).convert_to_string();
              //EXPECT_TRUE(close(matSmall * val, quaternion * val)) << (matSmall * val).convert_to_string() << " not equal to " << (quaternion * val).convert_to_string();

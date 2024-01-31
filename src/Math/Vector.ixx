@@ -11,7 +11,7 @@ export module NYANMath:Vector;
 import :Util;
 import :Constants;
 
-export namespace Math
+export namespace nyan::util::math
 {
 	template<ScalarT Scalar, size_t Size_x, size_t Size_y, bool column_major> class Mat;
 	template<ScalarT Scalar> class Quaternion;

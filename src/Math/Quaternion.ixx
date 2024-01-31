@@ -8,7 +8,7 @@ import :Constants;
 import :Vector;
 import :Matrix;
 
-export namespace Math
+export namespace nyan::util::math
 {
 
 	template<ScalarT Scalar>

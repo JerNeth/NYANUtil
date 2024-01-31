@@ -6,7 +6,7 @@ module;
 
 export module NYANMath:Util;
 
-export namespace Math
+export namespace nyan::util::math
 {
 	struct half;
 	template<typename T>
@@ -19,8 +19,8 @@ export namespace Math
 	struct snorm;
 
 	template<typename T>
-	concept ScalarT = std::is_arithmetic_v<T> || std::is_same_v<T, Math::half> || std::is_same_v<T, Math::unorm<uint8_t>> || std::is_same_v<T, Math::unorm<uint16_t>> || std::is_same_v<T, Math::unorm<uint32_t>> || std::is_same_v<T, Math::unorm<uint64_t>>
-		|| std::is_same_v<T, Math::snorm<int8_t>> || std::is_same_v<T, Math::snorm<int16_t>> || std::is_same_v<T, Math::snorm<int32_t>> || std::is_same_v<T, Math::snorm<int64_t>>;
+	concept ScalarT = std::is_arithmetic_v<T> || std::is_same_v<T, half> || std::is_same_v<T, unorm<uint8_t>> || std::is_same_v<T, unorm<uint16_t>> || std::is_same_v<T, unorm<uint32_t>> || std::is_same_v<T, unorm<uint64_t>>
+		|| std::is_same_v<T, snorm<int8_t>> || std::is_same_v<T, snorm<int16_t>> || std::is_same_v<T, snorm<int32_t>> || std::is_same_v<T, snorm<int64_t>>;
 
 	template<ScalarT S, ScalarT B>
 	constexpr auto min(const S& a, const B& b) noexcept -> decltype(a + b) {
@@ -43,7 +43,7 @@ export namespace Math
 	*/
 	template<ScalarT S>
 	constexpr S clamp(const S& val, const S& min, const S& max) noexcept {
-		return Math::max(Math::min(val, max), min);
+		return max(min(val, max), min);
 	}
 	template<ScalarT S>
 	constexpr bool close(const S& a, const S& b, const S& eps = S(1e-5)) noexcept {

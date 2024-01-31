@@ -12,7 +12,7 @@ import :Util;
 import :Constants;
 import :Vector;
 
-export namespace Math
+export namespace nyan::util::math
 {
 
 	template<ScalarT Scalar, size_t Size> class Vec;
@@ -99,9 +99,9 @@ export namespace Math
 				for (size_t x = 0; x < Size_x; x++) {
 					//Memory layout differs from user expectation
 					if constexpr (column_major)
-						at(x, y) = Scalar(list[Math::at<Size_y, column_major>(x, y)]);
+						at(x, y) = Scalar(list[math::at<Size_y, column_major>(x, y)]);
 					else
-						at(x, y) = Scalar(list[Math::at<Size_x, column_major>(x, y)]);
+						at(x, y) = Scalar(list[math::at<Size_x, column_major>(x, y)]);
 				}
 			}
 		}
@@ -111,9 +111,9 @@ export namespace Math
 				for (size_t x = 0; x < Size_x; x++) {
 					//Memory layout differs from user expectation
 					if constexpr (column_major)
-						at(x, y) = Scalar(vec[Math::at<Size_y, column_major>(x, y)]);
+						at(x, y) = Scalar(vec[math::at<Size_y, column_major>(x, y)]);
 					else
-						at(x, y) = Scalar(vec[Math::at<Size_x, column_major>(x, y)]);
+						at(x, y) = Scalar(vec[math::at<Size_x, column_major>(x, y)]);
 				}
 			}
 		}
@@ -131,7 +131,7 @@ export namespace Math
 				std::array<Scalar, sizeof...(Args)> list = { static_cast<Scalar>(args)... };
 				for (size_t y = 0; y < Size_y; y++) {
 					for (size_t x = 0; x < Size_x; x++) {
-						at(x, y) = Scalar{ list[Math::at<Size_x, false>(x, y)] };
+						at(x, y) = Scalar{ list[math::at<Size_x, false>(x, y)] };
 					}
 				}
 			}
@@ -509,23 +509,23 @@ export namespace Math
 		{
 			assert(Size_x > 2 && Size_y > 2);
 			assert(Size_x < 5 && Size_y < 5);
-			//Math::vec3 tmpX{ col(0) };
-			//Math::vec3 tmpY{ col(1) };
-			//Math::vec3 tmpZ{ col(2) };
-			if (Math::close(col(0)[2], Scalar(-1.0f))) {
-				return Vec<Scalar, 3>{ Math::pi_2* Math::rad_to_deg,
-					Math::pi_2* Math::rad_to_deg,
-					std::atan2(col(1)[0], -col(1)[1])* Math::rad_to_deg };
+			//math::vec3 tmpX{ col(0) };
+			//math::vec3 tmpY{ col(1) };
+			//math::vec3 tmpZ{ col(2) };
+			if (math::close(col(0)[2], Scalar(-1.0f))) {
+				return Vec<Scalar, 3>{ math::pi_2* math::rad_to_deg,
+					math::pi_2* math::rad_to_deg,
+					std::atan2(col(1)[0], -col(1)[1])* math::rad_to_deg };
 			}
-			else if (Math::close(col(0)[2], Scalar(1.0f))) {
-				return Vec<Scalar, 3>{ Math::pi_2* Math::rad_to_deg,
-					-Math::pi_2 * Math::rad_to_deg,
-					std::atan2(col(1)[0], -col(1)[1])* Math::rad_to_deg };
+			else if (math::close(col(0)[2], Scalar(1.0f))) {
+				return Vec<Scalar, 3>{ math::pi_2* math::rad_to_deg,
+					-math::pi_2 * math::rad_to_deg,
+					std::atan2(col(1)[0], -col(1)[1])* math::rad_to_deg };
 			}
 			else {
-				return Vec<Scalar, 3>{ std::atan2(col(1)[2], col(2)[2])* Math::rad_to_deg,
-					std::atan2(-col(0)[2], std::sqrt(col(1)[2] * col(1)[2] + col(2)[2] * col(2)[2]))* Math::rad_to_deg,
-					std::atan2(col(0)[1], col(0)[0])* Math::rad_to_deg };
+				return Vec<Scalar, 3>{ std::atan2(col(1)[2], col(2)[2])* math::rad_to_deg,
+					std::atan2(-col(0)[2], std::sqrt(col(1)[2] * col(1)[2] + col(2)[2] * col(2)[2]))* math::rad_to_deg,
+					std::atan2(col(0)[1], col(0)[0])* math::rad_to_deg };
 			}
 		}
 
@@ -603,7 +603,7 @@ export namespace Math
 		}
 		static Mat<Scalar, 4, 4, column_major> affine_transformation_matrix(Vec<Scalar, 3>  roll_pitch_yaw, Vec<Scalar, 3>  translation_vector, Vec<Scalar, 3>  scale)noexcept
 		{
-			Mat<Scalar, 4, 4, column_major> mat = Math::Mat<Scalar, Size_y, Size_x, column_major>::affine_transformation_matrix(roll_pitch_yaw, translation_vector);
+			Mat<Scalar, 4, 4, column_major> mat = math::Mat<Scalar, Size_y, Size_x, column_major>::affine_transformation_matrix(roll_pitch_yaw, translation_vector);
 
 			for (size_t col = 0; col < 3; ++col)
 				for (size_t row = 0; row < 3; ++row)

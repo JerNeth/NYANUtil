@@ -2,9 +2,10 @@ import NYANMath;
 
 int main()
 {
-	Math::half a;
-	Math::quat q;
-	Math::mat44 m;
-	Math::vec3 v;
+	using namespace nyan::util::math;
+	half a;
+	quat q;
+	mat44 m;
+	vec3 v;
 	return 0;
 }
