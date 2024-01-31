@@ -2,7 +2,7 @@ import NYANData;
 
 #include <gtest/gtest.h>
 
-namespace Utility
+namespace nyan::util::data
 {
     TEST(BitsetTests, setAndTest) {
         enum class Test : uint32_t {
@@ -84,7 +84,7 @@ namespace Utility
             Size
         };
         using enum Test;
-        nyan::util::data::bitset<static_cast<size_t>(Test::Size), Test> bitset;
+        bitset<static_cast<size_t>(Test::Size), Test> bitset;
         EXPECT_FALSE(bitset.test(A));
         EXPECT_FALSE(bitset.test(B));
         EXPECT_FALSE(bitset.test(C));
@@ -93,7 +93,7 @@ namespace Utility
         EXPECT_FALSE(bitset.test(E));
         EXPECT_FALSE(bitset.test(F));
         EXPECT_FALSE(bitset.test(H));
-		//EXPECT_FALSE(bitset.test(Size)); Will fail assertion
+        //EXPECT_FALSE(bitset.test(Size)); Will fail assertion
 
         bitset.set(A);
         EXPECT_TRUE(bitset.test(A));
@@ -125,8 +125,8 @@ namespace Utility
         bitset.set(BZ);
         for (auto i = static_cast<uint32_t>(A); i < static_cast<uint32_t>(Test::Size); ++i)
         {
-            if(static_cast<Test>(i) != C && static_cast<Test>(i) != BZ)
-				EXPECT_FALSE(bitset.test(static_cast<Test>(i)));
+            if (static_cast<Test>(i) != C && static_cast<Test>(i) != BZ)
+                EXPECT_FALSE(bitset.test(static_cast<Test>(i)));
         }
         EXPECT_TRUE(bitset.test(static_cast<Test>(C)));
         EXPECT_TRUE(bitset.test(static_cast<Test>(BZ)));
@@ -211,7 +211,7 @@ namespace Utility
             Size
         };
         using enum Test;
-        nyan::util::data::bitset<static_cast<size_t>(Test::Size), Test> bitset;
+        bitset<static_cast<size_t>(Test::Size), Test> bitset;
 
         bitset.set(A);
         EXPECT_TRUE(bitset.test(A));
@@ -308,7 +308,7 @@ namespace Utility
             Size
         };
         using enum Test;
-        nyan::util::data::bitset<static_cast<size_t>(Test::Size), Test> bitset;
+        bitset<static_cast<size_t>(Test::Size), Test> bitset;
 
         bitset.set(H);
 
@@ -405,8 +405,8 @@ namespace Utility
             Size
         };
         using enum Test;
-        nyan::util::data::bitset<static_cast<size_t>(Test::Size), Test> bitsetA;
-        nyan::util::data::bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+        bitset<static_cast<size_t>(Test::Size), Test> bitsetA;
+        bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
 
         bitsetA.set(A);
         bitsetB.set(B);
@@ -427,101 +427,9 @@ namespace Utility
         bitsetB.set(B);
         EXPECT_TRUE(bitsetA);
         EXPECT_TRUE(bitsetB);
-        EXPECT_FALSE(bitsetA& bitsetB);
+        EXPECT_FALSE(bitsetA & bitsetB);
         bitsetA.set(B);
-        EXPECT_TRUE(bitsetA& bitsetB);
+        EXPECT_TRUE(bitsetA & bitsetB);
 
-    }
-
-    TEST(DynamicBitsetTests, reserve) {
-        nyan::util::data::DynamicBitset dynBitset;
-        EXPECT_TRUE(dynBitset.reserve(64));
-        EXPECT_EQ(dynBitset.capacity(), 64);
-
-    }
-    TEST(DynamicBitsetTests, fill) {
-        nyan::util::data::DynamicBitset dynBitset;
-
-        constexpr auto testSize = 1 << 10;
-		ASSERT_TRUE(dynBitset.reserve(testSize));
-        for (auto i = 0; i < testSize; ++i) {
-            auto idx = dynBitset.find_empty();
-            ASSERT_TRUE(idx) << i;
-            if (idx)
-                dynBitset.set(*idx);
-        }
-        EXPECT_GE(dynBitset.capacity(), testSize);
-        EXPECT_LE(dynBitset.capacity(), testSize + 64);
-        for (auto i = 0; i < testSize; ++i) {
-            EXPECT_TRUE(dynBitset.test(i));
-        }
-        for (auto i = 0; i < testSize; ++i) {
-            dynBitset.reset(i);
-        }
-        for (auto i = 0; i < testSize; ++i) {
-            EXPECT_FALSE(dynBitset.test(i));
-        }
-    }
-    TEST(DynamicBitsetTests, copy) {
-        nyan::util::data::DynamicBitset dynBitset;
-
-        constexpr auto testSize = 1 << 10;
-        ASSERT_TRUE(dynBitset.reserve(testSize));
-        for (auto i = 0; i < testSize; ++i) {
-            auto idx = dynBitset.find_empty();
-            ASSERT_TRUE(idx) << i;
-            if (idx)
-                dynBitset.set(*idx);
-        }
-        EXPECT_GE(dynBitset.capacity(), testSize);
-        EXPECT_LE(dynBitset.capacity(), testSize + 64);
-        for (auto i = 0; i < testSize; ++i) {
-            EXPECT_TRUE(dynBitset.test(i));
-        }
-        nyan::util::data::DynamicBitset bitsetCopy{ dynBitset };
-        EXPECT_GE(bitsetCopy.capacity(), testSize);
-        EXPECT_LE(bitsetCopy.capacity(), testSize + 64);
-        for (auto i = 0; i < testSize; ++i) {
-            EXPECT_TRUE(bitsetCopy.test(i));
-        }
-
-        nyan::util::data::DynamicBitset bitsetAssignCopy = bitsetCopy;
-
-        EXPECT_GE(bitsetAssignCopy.capacity(), testSize);
-        EXPECT_LE(bitsetAssignCopy.capacity(), testSize + 64);
-        for (auto i = 0; i < testSize; ++i) {
-            EXPECT_TRUE(bitsetAssignCopy.test(i));
-        }
-    }
-    TEST(DynamicBitsetTests, move) {
-        nyan::util::data::DynamicBitset dynBitset;
-
-        constexpr auto testSize = 1 << 10;
-        ASSERT_TRUE(dynBitset.reserve(testSize));
-        for (auto i = 0; i < testSize; ++i) {
-            auto idx = dynBitset.find_empty();
-            ASSERT_TRUE(idx) << i;
-            if (idx)
-                dynBitset.set(*idx);
-        }
-        EXPECT_GE(dynBitset.capacity(), testSize);
-        EXPECT_LE(dynBitset.capacity(), testSize + 64);
-        for (auto i = 0; i < testSize; ++i) {
-            EXPECT_TRUE(dynBitset.test(i));
-        }
-        nyan::util::data::DynamicBitset bitsetCopy{ std::move(dynBitset) };
-        EXPECT_GE(bitsetCopy.capacity(), testSize);
-        EXPECT_LE(bitsetCopy.capacity(), testSize + 64);
-        for (auto i = 0; i < testSize; ++i) {
-            EXPECT_TRUE(bitsetCopy.test(i));
-        }
-
-        nyan::util::data::DynamicBitset bitsetAssignCopy = std::move(bitsetCopy);
-
-        EXPECT_GE(bitsetAssignCopy.capacity(), testSize);
-        EXPECT_LE(bitsetAssignCopy.capacity(), testSize + 64);
-        for (auto i = 0; i < testSize; ++i) {
-            EXPECT_TRUE(bitsetAssignCopy.test(i));
-        }
     }
 }

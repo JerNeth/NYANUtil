@@ -4,6 +4,7 @@ target_sources(Data
 	PRIVATE
 	PUBLIC
 		FILE_SET cxx_modules TYPE CXX_MODULES FILES
+		DynamicArray.ixx
 		DynamicBitset.ixx
 		NYANData.ixx
 		StaticBitset.ixx

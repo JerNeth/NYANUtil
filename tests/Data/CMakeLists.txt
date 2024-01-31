@@ -1,4 +1,4 @@
-﻿add_executable(DataTests DataTests.cpp )
+﻿add_executable(DataTests "DynamicBitsetTests.cpp"  "DynamicArrayTests.cpp" "StaticBitsetTests.cpp")
 
 enable_testing()
 target_link_libraries(DataTests 
