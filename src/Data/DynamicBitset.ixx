@@ -23,32 +23,32 @@ export namespace nyan::util::data
 				free(m_occupancy);
 		}
 		DynamicBitset(const DynamicBitset& other) noexcept :
-			m_size(other.m_size)
+			m_bufferSize(other.m_bufferSize)
 		{
-			m_occupancy = static_cast<size_t*>(malloc(m_size * sizeof(size_t)));
+			m_occupancy = static_cast<size_t*>(malloc(m_bufferSize * sizeof(size_t)));
 			assert(m_occupancy);
 			if (m_occupancy)
-				memcpy(m_occupancy, other.m_occupancy, m_size * sizeof(size_t));
+				memcpy(m_occupancy, other.m_occupancy, m_bufferSize * sizeof(size_t));
 			else
-				m_size = 0;
+				m_bufferSize = 0;
 		}
 		DynamicBitset(DynamicBitset&& other) noexcept :
 			m_occupancy(other.m_occupancy),
-			m_size(other.m_size)
+			m_bufferSize(other.m_bufferSize)
 		{
 			other.m_occupancy = nullptr;
-			other.m_size = 0;
+			other.m_bufferSize = 0;
 		}
 		DynamicBitset& operator=(const DynamicBitset& other) noexcept
 		{
 			if (this != std::addressof(other)) {
-				m_size = other.m_size;
-				m_occupancy = static_cast<size_t*>(realloc(m_occupancy, m_size * sizeof(size_t)));
+				m_bufferSize = other.m_bufferSize;
+				m_occupancy = static_cast<size_t*>(realloc(m_occupancy, m_bufferSize * sizeof(size_t)));
 				assert(m_occupancy);
 				if (m_occupancy)
-					memcpy(m_occupancy, other.m_occupancy, m_size * sizeof(size_t));
+					memcpy(m_occupancy, other.m_occupancy, m_bufferSize * sizeof(size_t));
 				else
-					m_size = 0;
+					m_bufferSize = 0;
 			}
 			return *this;
 		}
@@ -56,7 +56,7 @@ export namespace nyan::util::data
 		{
 			if (this != std::addressof(other)) {
 				std::swap(m_occupancy, other.m_occupancy);
-				std::swap(m_size, other.m_size);
+				std::swap(m_bufferSize, other.m_bufferSize);
 			}
 			return *this;
 		}
@@ -68,19 +68,21 @@ export namespace nyan::util::data
 				if (!data)
 					return false;
 				m_occupancy = data;
-				memset(m_occupancy + m_size, 0, (newSize - m_size) * sizeof(size_t));
-				m_size = newSize;
+				memset(m_occupancy + m_bufferSize, 0, (newSize - m_bufferSize) * sizeof(size_t));
+				m_bufferSize = newSize;
 			}
 			return true;
 		}
-		std::optional<size_t> find_empty() noexcept
+		std::optional<size_t> find_empty() const noexcept
 		{
 			size_t bucket = 0;
 			for (; !m_occupancy || m_occupancy[bucket] == full_mask; bucket++) {
-				if (bucket + 1 >= m_size) {
-					if (!reserve(capacity() + occupancy_size))
-						return std::nullopt;
-					break;
+				
+				if (bucket + 1 >= m_bufferSize) {
+					return std::nullopt;
+				//	if (!reserve(capacity() + occupancy_size))
+				//		return std::nullopt;
+				//	break;
 				}
 			}
 			return bucket * sizeof(size_t) * 8 + std::countr_one(m_occupancy[bucket]);
@@ -88,13 +90,13 @@ export namespace nyan::util::data
 		size_t popcount() const noexcept {
 			size_t ret = 0;
 			assert(m_occupancy);
-			for (size_t bucket = 0; bucket < m_size; bucket++) {
+			for (size_t bucket = 0; bucket < m_bufferSize; bucket++) {
 				ret += std::popcount(m_occupancy[bucket]);
 			}
 			return ret;
 		}
 		constexpr void clear() noexcept {
-			for (size_t bucket = 0; bucket < m_size; bucket++) {
+			for (size_t bucket = 0; bucket < m_bufferSize; bucket++) {
 				m_occupancy[bucket] = static_cast<size_t>(0);
 			}
 		}
@@ -119,12 +121,12 @@ export namespace nyan::util::data
 			m_occupancy[idx >> bitsPerWordBitPos] ^= single_mask << (idx & full_mask);
 		}
 		constexpr size_t capacity() const noexcept {
-			return m_size * sizeof(size_t) * 8;
+			return m_bufferSize * sizeof(size_t) * 8;
 		}
 	private:
 
 		size_t* m_occupancy = nullptr;
-		size_t m_size = 0;
+		size_t m_bufferSize = 0;
 
 	};
 }

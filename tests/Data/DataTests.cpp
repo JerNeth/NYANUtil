@@ -443,8 +443,10 @@ namespace Utility
         nyan::util::data::DynamicBitset dynBitset;
 
         constexpr auto testSize = 1 << 10;
+		ASSERT_TRUE(dynBitset.reserve(testSize));
         for (auto i = 0; i < testSize; ++i) {
             auto idx = dynBitset.find_empty();
+            ASSERT_TRUE(idx) << i;
             if (idx)
                 dynBitset.set(*idx);
         }
@@ -464,8 +466,10 @@ namespace Utility
         nyan::util::data::DynamicBitset dynBitset;
 
         constexpr auto testSize = 1 << 10;
+        ASSERT_TRUE(dynBitset.reserve(testSize));
         for (auto i = 0; i < testSize; ++i) {
             auto idx = dynBitset.find_empty();
+            ASSERT_TRUE(idx) << i;
             if (idx)
                 dynBitset.set(*idx);
         }
@@ -493,8 +497,10 @@ namespace Utility
         nyan::util::data::DynamicBitset dynBitset;
 
         constexpr auto testSize = 1 << 10;
+        ASSERT_TRUE(dynBitset.reserve(testSize));
         for (auto i = 0; i < testSize; ++i) {
             auto idx = dynBitset.find_empty();
+            ASSERT_TRUE(idx) << i;
             if (idx)
                 dynBitset.set(*idx);
         }
