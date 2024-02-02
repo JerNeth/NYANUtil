@@ -355,7 +355,7 @@ export namespace nyan::util::log
                 stream() << message;
             return *this;
         }
-        Logger& message(const std::string_view message, const std::array<uint8_t, 3>& color)& {
+        Logger& message(const std::array<uint8_t, 3>& color, const std::string_view message)& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 stream() << std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), message);
             return *this;
@@ -365,7 +365,7 @@ export namespace nyan::util::log
                 stream() << message;
             return std::move(*this);
         }
-        Logger&& message(const std::string_view message, const std::array<uint8_t, 3>& color)&& {
+        Logger&& message(const std::array<uint8_t, 3>& color, const std::string_view message)&& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 stream() << std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), message);
             return std::move(*this);
@@ -398,7 +398,7 @@ export namespace nyan::util::log
 			return *this;
 		}
         template<typename ...Args>
-        Logger& format(std::string_view view, const std::array<uint8_t, 3>& color, Args&&... args)& {
+        Logger& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 stream() << std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), std::vformat(view, std::make_format_args(args...)));
             //OutputDebugString(std::vformat(view, std::make_format_args(args...)));
@@ -412,7 +412,7 @@ export namespace nyan::util::log
             return std::move(*this);
         }
         template<typename ...Args>
-        Logger&& format(std::string_view view, const std::array<uint8_t, 3>& color, Args&&... args)&& {
+        Logger&& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)&& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 stream() << std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), std::vformat(view, std::make_format_args(args...))) ;
             //OutputDebugString(std::vformat(view, std::make_format_args(args...)));
@@ -473,24 +473,24 @@ export namespace nyan::util::log
         return critical().message(message);
     }
 
-    auto verbose_message(const std::string_view message, const std::array<uint8_t, 3>& color)
+    auto verbose_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
-        return verbose().message(message, color);
+        return verbose().message(color, message);
     }
-    auto warning_message(const std::string_view message, const std::array<uint8_t, 3>& color)
+    auto warning_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
-        return warning().message(message, color);
+        return warning().message(color, message);
     }
-    auto info_message(const std::string_view message, const std::array<uint8_t, 3>& color)
+    auto info_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
-        return info().message(message, color);
+        return info().message(color, message);
     }
-    auto error_message(const std::string_view message, const std::array<uint8_t, 3>& color)
+    auto error_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
-        return error().message(message, color);
+        return error().message(color, message);
     }
-    auto critical_message(const std::string_view message, const std::array<uint8_t, 3>& color)
+    auto critical_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
-        return critical().message(message, color);
+        return critical().message(color, message);
     }
 }
