@@ -337,17 +337,17 @@ export namespace nyan::util::log
 		}
 		constexpr Logger& operator=(Logger&& other) noexcept {
 			if (this != std::addressof(other)) {
-				m_newLine = other.m_newLine;
-				other.m_newLine = false;
+				std::swap(m_newLine, other.m_newLine);
 			}
 			return *this;
 		}
 		~Logger() {
-			if constexpr (!(verbosity & static_cast<uint32_t>(type)))
-				return;
-			if (!m_newLine)
-				return;
-			stream() << '\n';
+            if constexpr (verbosity & static_cast<uint32_t>(type))
+				if (!m_newLine)
+					return;
+
+            if constexpr (verbosity & static_cast<uint32_t>(type))
+				stream() << '\n';
 		}
         
         Logger& message(const std::string_view message)& {
