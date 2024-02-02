@@ -1,15 +1,18 @@
 import NYANLog;
 
 #include <gtest/gtest.h>
+#include <array>
 
 namespace Utility
 {
     TEST(Log, LogToStdout) {
         testing::internal::CaptureStdout();
         std::string inputInfo = "Hello World from info";
-        nyan::util::log::info().message(inputInfo);
+        {
+            nyan::util::log::info().message(inputInfo);
+        }
         std::string output = testing::internal::GetCapturedStdout();
-        EXPECT_EQ(inputInfo, output);
+        EXPECT_EQ(inputInfo + "\n", output);
 
         std::string inputVerbose = "Hello World from verbose";
         nyan::util::log::verbose().message(inputVerbose);
