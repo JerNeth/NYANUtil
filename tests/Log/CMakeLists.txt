@@ -7,5 +7,7 @@ target_link_libraries(LogTests
 			GTest::gtest_main)
 
 			
+target_compile_definitions(LogTests PUBLIC LOGVERBOSITY=15)
+
 include(GoogleTest)
 gtest_discover_tests(LogTests)

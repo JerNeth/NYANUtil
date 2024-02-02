@@ -40,7 +40,7 @@ export namespace nyan::util::data
 			using reference = reference;  // or also value_type&
 
 			reference operator*() const noexcept { return *m_ptr; }
-			pointer operator->() noexcept { return m_ptr; }
+			pointer operator->() const noexcept { return m_ptr; }
 
 			Iterator& operator++() noexcept { ++m_ptr; return *this; }
 
@@ -64,7 +64,7 @@ export namespace nyan::util::data
 
 			reference& operator[](size_type b) noexcept
 			{
-				return m_ptr[b];
+				return *(*this + b);
 			}
 
 			friend bool operator== (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr == b.m_ptr; };
@@ -98,7 +98,7 @@ export namespace nyan::util::data
 			using const_reference = const_reference;  // or also value_type&
 
 			const_reference operator*() const noexcept{ return *m_ptr; }
-			const_pointer operator->()noexcept { return m_ptr; }
+			const_pointer operator->() const noexcept { return m_ptr; }
 
 			Const_Iterator& operator++() noexcept { ++m_ptr; return *this; }
 
@@ -121,7 +121,7 @@ export namespace nyan::util::data
 
 			const_reference& operator[](size_type b) const noexcept
 			{
-				return m_ptr[b];
+				return *(*this + b);
 			}
 
 
@@ -250,10 +250,10 @@ export namespace nyan::util::data
 			return true;
 		}
 
-		template<class... Args,
-			typename = std::enable_if_t<std::is_nothrow_constructible_v<value_type, Args...>>>
+		template<class... Args >
 		[[nodiscard]] bool emplace_back(Args&&... args) noexcept
 		{
+			static_assert(std::is_nothrow_constructible_v<value_type, Args...>);
 			if (m_size + 1 >= m_capacity)
 				if (!grow(calc_new_capacity()))
 					return false;
@@ -367,20 +367,20 @@ export namespace nyan::util::data
 
 		[[nodiscard]] Iterator begin() noexcept
 		{
-			return Iterator(&m_data[0]);
+			return Iterator(m_data);
 		}
 		[[nodiscard]] Iterator end() noexcept
 		{
-			return Iterator(&m_data[m_size]);
+			return Iterator(m_data + m_size);
 		}
 
 		[[nodiscard]] Const_Iterator cbegin() const noexcept
 		{
-			return Const_Iterator(&m_data[0]);
+			return Const_Iterator(m_data);
 		}
 		[[nodiscard]] Const_Iterator cend() const noexcept
 		{
-			return Const_Iterator(&m_data[m_size]);
+			return Const_Iterator(m_data + m_size);
 		}
 
 		friend constexpr void swap(DynArray& lhs, DynArray& rhs) noexcept
@@ -438,8 +438,9 @@ export namespace nyan::util::data
 			return std::max(newCapacity, 1ull);
 		}
 
-		constexpr void clean() noexcept(std::is_nothrow_destructible_v<value_type>)
+		constexpr void clean() noexcept
 		{
+			static_assert(std::is_nothrow_destructible_v<value_type>);
 			if constexpr (!std::is_trivially_destructible_v<value_type>) {
 				for (size_type i = 0; i < m_size; ++i)
 					m_data[i].~T();
@@ -448,7 +449,7 @@ export namespace nyan::util::data
 		}
 
 		pointer m_data {nullptr};
-		size_type m_size {0};
+		size_type m_size{ 0 };
 		size_type m_capacity {0};
 	};
 }

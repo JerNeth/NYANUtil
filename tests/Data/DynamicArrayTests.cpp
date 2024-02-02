@@ -1,5 +1,6 @@
 import NYANData;
 
+#include <random>
 #include <gtest/gtest.h>
 
 namespace nyan::util::data
@@ -79,7 +80,7 @@ namespace nyan::util::data
 	class NonTrivialClass
 	{
 	public:
-		explicit NonTrivialClass(uint32_t a) :
+		explicit NonTrivialClass(uint32_t a) noexcept :
 			m_a(a)
 		{
 
@@ -349,4 +350,127 @@ namespace nyan::util::data
 		EXPECT_EQ(a[11], 5);
 	}
 
+	TEST(DynamicArrayTests, benchVsVector) {
+
+		uint32_t iters = (1 << 10) + (std::rand()% 1024);
+		
+
+		{
+			auto start = std::chrono::steady_clock::now();
+			DynArray<NonTrivialClass> a;
+			for (uint32_t i = 0; i < iters; i++) {
+				if (!a.push_back(NonTrivialClass(i)))
+					EXPECT_EQ(a[5], 0);
+				
+			}
+			auto end = std::chrono::steady_clock::now();
+			std::cout << "DynArray pushBack took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+
+		{
+			auto start = std::chrono::steady_clock::now();
+			std::vector<NonTrivialClass> a;
+			for (uint32_t i = 0; i < iters; i++) {
+				a.push_back(NonTrivialClass(i));
+			}
+			auto end = std::chrono::steady_clock::now();
+			std::cout << "Vector pushBack took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+		{
+			auto start = std::chrono::steady_clock::now();
+			DynArray<NonTrivialClass> a;
+			for (uint32_t i = 0; i < iters; i++) {
+				if (!a.emplace_back(i))
+					EXPECT_EQ(a[5], 0);
+			}
+			auto end = std::chrono::steady_clock::now();
+			std::cout << "DynArray emplaceBack took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+
+		{
+			auto start = std::chrono::steady_clock::now();
+			std::vector<NonTrivialClass> a;
+			for (uint32_t i = 0; i < iters; i++) {
+				a.emplace_back(i);
+			}
+			auto end = std::chrono::steady_clock::now();
+			std::cout << "Vector emplaceBack took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+
+		{
+			DynArray<NonTrivialClass> a;
+			for (uint32_t i = 0; i < iters; i++) {
+				if (!a.emplace_back(i))
+					EXPECT_EQ(a[5], 0);
+			}
+			NonTrivialClass::destructorCount = 0;
+			auto start = std::chrono::steady_clock::now();
+			a.clear();
+			auto end = std::chrono::steady_clock::now();
+			EXPECT_EQ(NonTrivialClass::destructorCount, iters);
+			std::cout << "DynArray clear took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+
+		{
+			std::vector<NonTrivialClass> a;
+			for (uint32_t i = 0; i < iters; i++) {
+				a.emplace_back(i);
+			}
+			auto start = std::chrono::steady_clock::now();
+			a.clear();
+			auto end = std::chrono::steady_clock::now();
+			std::cout << "Vector clear took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+		{
+			//DynArray<std::string> a;
+			//auto start = std::chrono::steady_clock::now();
+			//for (uint32_t i = 0; i < iters; i++) {
+			//	if (!a.emplace_back(std::to_string(i)))
+			//		EXPECT_TRUE(!a[5].compare("5"));
+			//}
+			//auto end = std::chrono::steady_clock::now();
+			//std::cout << "DynArray clear took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+
+		{
+			std::vector<std::string> a;
+			auto start = std::chrono::steady_clock::now();
+			for (uint32_t i = 0; i < iters; i++) {
+				a.emplace_back(std::to_string(i));
+			}
+			auto end = std::chrono::steady_clock::now();
+			std::cout << "Vector clear took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+
+		const uint64_t itxes = (1<<10) + (rand() & 0x7);
+
+		{
+			std::vector<uint64_t> ab;
+			for (uint64_t i = 0; i < iters; i++) {
+				ab.push_back(i);
+			}
+			uint64_t sum = 0;
+			auto start = std::chrono::steady_clock::now();
+			for (uint32_t itx = 0; itx < itxes; ++itx)
+				for (auto as : ab)
+					sum += as;
+			auto end = std::chrono::steady_clock::now();
+			std::cout << sum << " Vector iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+		{
+			DynArray<uint64_t> ab;
+			for (uint64_t i = 0; i < iters; i++) {
+				if (!ab.push_back(i))
+					EXPECT_EQ(1, 0);
+
+			}
+			uint64_t sum = 0;
+			auto start = std::chrono::steady_clock::now();
+			for (uint32_t itx = 0; itx < itxes; ++itx)
+				for (auto as : ab)
+					sum += as;
+			auto end = std::chrono::steady_clock::now();
+			std::cout << sum << " DynArray iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+	}
 }

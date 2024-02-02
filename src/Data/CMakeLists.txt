@@ -8,7 +8,7 @@ target_sources(Data
 		DynamicBitset.ixx
 		NYANData.ixx
 		StaticBitset.ixx
-)
+ "Hash.ixx")
 	
 target_compile_features(Data PUBLIC cxx_std_23)
 
