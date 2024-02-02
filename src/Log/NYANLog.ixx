@@ -273,7 +273,7 @@ namespace impl
         size_t dist{ 0 };
 
         for (size_t idx = 0; idx < colorA.size(); ++idx) {
-            auto diff = static_cast<int>(colorA[0]) - static_cast<int>(colorB[0]);
+            auto diff = static_cast<int>(colorA[idx]) - static_cast<int>(colorB[idx]);
             dist += diff > 0 ? diff : -diff;
         }
         return dist;
