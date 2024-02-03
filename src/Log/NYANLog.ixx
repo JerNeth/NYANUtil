@@ -342,12 +342,12 @@ export namespace nyan::util::log
 			return *this;
 		}
 		~Logger() {
-            if constexpr (verbosity & static_cast<uint32_t>(type))
-				if (!m_newLine)
-					return;
-
-            if constexpr (verbosity & static_cast<uint32_t>(type))
-				stream() << '\n';
+            if constexpr (!(verbosity & static_cast<uint32_t>(type)))
+                return;
+            if (!m_newLine)
+                return;
+            //Sometime disappears because missing flush
+            stream() << '\n';
 		}
         
         Logger& message(const std::string_view message)& {
@@ -371,22 +371,26 @@ export namespace nyan::util::log
             return std::move(*this);
         }
 		Logger& location(const std::source_location location = std::source_location::current()) & {
-			if constexpr (verbosity & static_cast<uint32_t>(type))
-				stream() << "file: "
-				<< location.file_name() << "("
-				<< location.line() << ":"
-				<< location.column() << ") `"
-				<< location.function_name() << "`: ";
+			//if constexpr (verbosity & static_cast<uint32_t>(type))
+			//	stream() << "file: "
+			//	<< location.file_name() << "("
+			//	<< location.line() << ":"
+			//	<< location.column() << ") `"
+			//	<< location.function_name() << "`: ";
+            if constexpr (verbosity & static_cast<uint32_t>(type))
+                stream() << std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name());
 			//OutputDebugString(std::vformat(view, std::make_format_args(args...)));
 			return *this;
 		}
 		Logger&& location(const std::source_location location = std::source_location::current())&& {
-			if constexpr (verbosity & static_cast<uint32_t>(type))
-				stream() << "file: "
-				<< location.file_name() << "("
-				<< location.line() << ":"
-				<< location.column() << ") `"
-				<< location.function_name() << "`: ";
+			//if constexpr (verbosity & static_cast<uint32_t>(type))
+			//	stream() << "file: "
+			//	<< location.file_name() << "("
+			//	<< location.line() << ":"
+			//	<< location.column() << ") `"
+			//	<< location.function_name() << "`: ";
+            if constexpr (verbosity & static_cast<uint32_t>(type))
+                stream() << std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name());
 			//OutputDebugString(std::vformat(view, std::make_format_args(args...)));
 			return std::move(*this);
 		}
@@ -419,7 +423,7 @@ export namespace nyan::util::log
             return std::move(*this);
         }
 	private:
-		[[nodiscard]] std::ostream& stream() const noexcept {
+		constexpr [[nodiscard]] std::ostream& stream() const noexcept {
 			if constexpr (type == LoggerType::Error) {
 				return std::cerr;
 			}

@@ -213,7 +213,17 @@ export namespace nyan::util::data
 			}
 			return *this;
 		}
+		
+		void pop_back() noexcept
+		{
+			if (!m_size)
+				return;
+			--m_size;
 
+			if constexpr (!std::is_trivially_destructible_v<value_type>)
+				m_data[m_size].~value_type();
+			
+		}
 
 		template<typename = std::enable_if_t<std::is_move_constructible_v<value_type> || (std::is_move_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
 		[[nodiscard]] bool push_back(value_type&& value) noexcept
@@ -331,6 +341,11 @@ export namespace nyan::util::data
 			return m_size;
 		}
 
+		[[nodiscard]] bool empty() const noexcept
+		{
+			return !m_size;
+		}
+
 		[[nodiscard]] reference operator[](size_type idx) noexcept
 		{
 			assert(m_data);
@@ -353,6 +368,16 @@ export namespace nyan::util::data
 		[[nodiscard]] const_reference front() const noexcept
 		{
 			return m_data[0];
+		}
+
+		[[nodiscard]] reference back() noexcept
+		{
+			return m_data[m_size - 1];
+		}
+
+		[[nodiscard]] const_reference back() const noexcept
+		{
+			return m_data[m_size - 1];
 		}
 
 		[[nodiscard]] pointer data() noexcept

@@ -27,4 +27,51 @@ namespace Utility
         nyan::util::log::critical().message(inputCritical);
 
     }
+    TEST(Log, LogFormat) {
+        {
+            testing::internal::CaptureStdout();
+            std::string inputInfo = "Test";
+            {
+                nyan::util::log::info_message(inputInfo);
+            }
+            std::string output = testing::internal::GetCapturedStdout();
+            EXPECT_EQ(inputInfo + "\n", output);
+        }
+        {
+            testing::internal::CaptureStdout();
+            std::string inputInfo = "Test";
+            {
+                nyan::util::log::info().format(inputInfo);
+            }
+            std::string output = testing::internal::GetCapturedStdout();
+            EXPECT_EQ(inputInfo + "\n", output);
+        }
+        {
+            testing::internal::CaptureStdout();
+            std::string inputInfo ="[Instance] Found vulkan capable device: test\ndevice\n1.3.125.0";
+            {
+                auto logger = nyan::util::log::info();
+                logger.format("[Instance] Found vulkan capable device: {}\n{}\n{}.{}.{}.{}", "test", "device",
+                   1, 3,
+                    125,0);
+            }
+            {
+                auto logger = nyan::util::log::info();
+                logger.format("[Instance] Found vulkan capable device: {}\n{}\n{}.{}.{}.{}", "test", "device",
+                    1, 3,
+                    125, 0);
+            }
+            std::string output = testing::internal::GetCapturedStdout();
+            EXPECT_EQ(inputInfo + "\n" + inputInfo + "\n", output);
+        }
+    }
+    TEST(Log, LogLocation) {
+
+        testing::internal::CaptureStdout();
+        {
+            nyan::util::log::info().location();
+        }
+        std::string output = testing::internal::GetCapturedStdout();
+        EXPECT_TRUE(!output.empty());
+    }
 }
