@@ -423,7 +423,7 @@ export namespace nyan::util::log
             return std::move(*this);
         }
 	private:
-		constexpr [[nodiscard]] std::ostream& stream() const noexcept {
+		[[nodiscard]] std::ostream& stream() const noexcept {
 			if constexpr (type == LoggerType::Error) {
 				return std::cerr;
 			}
