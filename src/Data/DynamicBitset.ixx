@@ -34,11 +34,9 @@ export namespace nyan::util::data
 				m_bufferSize = 0;
 		}
 		DynamicBitset(DynamicBitset&& other) noexcept :
-			m_occupancy(other.m_occupancy),
-			m_bufferSize(other.m_bufferSize)
+			m_occupancy(std::exchange(other.m_occupancy, nullptr)),
+			m_bufferSize(std::exchange(other.m_bufferSize, 0))
 		{
-			other.m_occupancy = nullptr;
-			other.m_bufferSize = 0;
 		}
 		DynamicBitset& operator=(const DynamicBitset& other) noexcept
 		{
