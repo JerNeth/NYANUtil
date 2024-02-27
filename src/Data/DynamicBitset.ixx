@@ -13,10 +13,11 @@ export namespace nyan::util::data
 	class DynamicBitset {
 		using StorageType = unsigned long long;
 		static constexpr StorageType occupancySize = (sizeof(StorageType) * 8u);
-		static constexpr StorageType  bitsPerWordBitPos = std::countr_zero(occupancySize);
 		static constexpr StorageType  fullMask = ~static_cast<StorageType>(0u);
 		static constexpr StorageType  noneMask = static_cast<StorageType>(0u);
 		static constexpr StorageType  singleMask = static_cast<StorageType>(1u);
+		static constexpr StorageType  bitsPerWordBitPos = std::countr_zero(occupancySize);
+		static constexpr StorageType  bitsDivMask = (singleMask << bitsPerWordBitPos) - 1;
 	public:
 		DynamicBitset() noexcept = default;
 		~DynamicBitset() noexcept {
@@ -108,22 +109,22 @@ export namespace nyan::util::data
 		constexpr bool test(size_t idx) const noexcept {
 			assert(m_occupancy);
 			assert(idx < capacity());
-			return (m_occupancy[idx >> bitsPerWordBitPos] >> (idx & fullMask)) & singleMask;
+			return (m_occupancy[idx >> bitsPerWordBitPos] >> (idx & bitsDivMask)) & singleMask;
 		}
 		constexpr void set(size_t idx) noexcept {
 			assert(m_occupancy);
 			assert(idx < capacity());
-			m_occupancy[idx >> bitsPerWordBitPos] |= singleMask << (idx & fullMask);
+			m_occupancy[idx >> bitsPerWordBitPos] |= singleMask << (idx & bitsDivMask);
 		}
 		constexpr void reset(size_t idx) noexcept {
 			assert(m_occupancy);
 			assert(idx < capacity());
-			m_occupancy[idx >> bitsPerWordBitPos] &= ~(singleMask << (idx & fullMask));
+			m_occupancy[idx >> bitsPerWordBitPos] &= ~(singleMask << (idx & bitsDivMask));
 		}
 		constexpr void toggle(size_t idx) noexcept {
 			assert(m_occupancy);
 			assert(idx < capacity());
-			m_occupancy[idx >> bitsPerWordBitPos] ^= singleMask << (idx & fullMask);
+			m_occupancy[idx >> bitsPerWordBitPos] ^= singleMask << (idx & bitsDivMask);
 		}
 		constexpr size_t capacity() const noexcept {
 			return m_bufferSize * occupancySize;
