@@ -28,7 +28,7 @@ add_subdirectory(src)
 # Testing
 # ---------------------------------------------------------------------------
 
-if (BUILD_TESTS)
+if (NYAN_UTIL_BUILD_TESTS)
     add_subdirectory(tests)
 endif ()
 
@@ -36,6 +36,6 @@ endif ()
 # Samples
 # ---------------------------------------------------------------------------
 
-if (BUILD_SAMPLES)
+if (NYAN_UTIL_BUILD_SAMPLES)
     add_subdirectory(samples)
 endif ()
