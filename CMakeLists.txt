@@ -15,8 +15,8 @@ endif()
 # Options
 # ---------------------------------------------------------------------------
 
-option(BUILD_TESTS "Build tests" ON)
-option(BUILD_SAMPLES "Build samples" ON)
+option(NYAN_UTIL_BUILD_TESTS "Build tests" ON)
+option(NYAN_UTIL_BUILD_SAMPLES "Build samples" ON)
 
 # ---------------------------------------------------------------------------
 # Sources
