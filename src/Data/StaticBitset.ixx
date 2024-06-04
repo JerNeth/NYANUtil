@@ -3,9 +3,15 @@ module;
 #include <array>
 #include <bit>
 #include <cassert>
+#include <limits>
+#include <iostream>
 
 export module NYANData:StaticBitset;
 
+namespace impl {
+	template<class F, class T>
+	concept Callable = requires(F && f, T && t) { std::invoke(std::forward<F>(f), std::forward<T>(t)); };
+}
 export namespace nyan::util::data
 {
 	template<size_t bitSize, typename T = size_t> // typename for indices e.g. enums
@@ -16,6 +22,7 @@ export namespace nyan::util::data
 		static_assert(std::has_single_bit(bitsPerWord));
 		static constexpr size_t bitsMask = bitsPerWord - 1;
 		static constexpr size_t typeSize = bitSize / bitsPerWord + (bitSize % bitsPerWord != 0);
+		static_assert(bitSize <= (std::numeric_limits <std::conditional_t< std::is_enum_v<T>, std::underlying_type_t<T>, T>>::max()));
 		//static_assert(std::is_convertible<T, size_t>::value);
 	public:
 		constexpr bitset() noexcept : m_data() {
@@ -83,6 +90,18 @@ export namespace nyan::util::data
 			}
 			return flags;
 		}
+		template<class Fun>
+		requires impl::Callable< Fun, T>
+		constexpr void for_each(Fun&& fun) const noexcept {
+			for (size_t i = 0; i < typeSize; i++) {
+				auto bits = m_data[i];
+				auto offset = bitsPerWord * i;
+				for (auto idx = std::countr_zero(bits); bits; bits &= ~(1ull << (idx))) {
+					idx = std::countr_zero(bits);
+					std::invoke(std::forward<Fun>(fun), static_cast<T>(idx + offset));
+				}
+			}
+		}
 		constexpr bitset& set() noexcept {
 			for (size_t i = 0; i < typeSize; i++) {
 				m_data[i] = static_cast<bitType>(~bitType{ 0 });
@@ -114,7 +133,7 @@ export namespace nyan::util::data
 		[[nodiscard]] constexpr operator bool() const noexcept {
 			return any();
 		}
-		[[nodiscard]] constexpr size_t count() const noexcept {
+		[[nodiscard]] constexpr size_t popcount() const noexcept {
 			size_t ret = 0;
 			for (size_t i = 0; i < typeSize; i++) {
 				ret += std::popcount(m_data[i]);
@@ -169,6 +188,14 @@ export namespace nyan::util::data
 			}
 			return *this;
 		}
+		constexpr bitset& flip(T _idx) noexcept {
+			const size_t idx = static_cast<size_t>(_idx);
+			assert(idx < bitSize);
+			auto& word = m_data[idx >> bitsPerWordBitPos];
+			const auto bit = 1ull << (idx & bitsMask);
+			word ^= static_cast<bitType>(bit);
+			return *this;
+		}
 		constexpr bitset operator~() const noexcept {
 			return bitset(*this).flip();
 		}
@@ -196,25 +223,25 @@ export namespace nyan::util::data
 			return memcmp(m_data.data(), rhs.m_data.data(), typeSize * sizeof(bitType)) == 0;
 		}
 		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator!=(const bitset<bitSize, T>& lhs, const bitset<bitSize, T>& rhs) {
+		friend constexpr bitset<bitSize, T> operator!=(const bitset<bitSize, T>& lhs, const bitset<bitSize, T>& rhs) noexcept {
 			return !(lhs == rhs);
 		}
 		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator^(const bitset<bitSize, T>& lhs, const bitset<bitSize, T>& rhs) {
+		friend constexpr bitset<bitSize, T> operator^(const bitset<bitSize, T>& lhs, const bitset<bitSize, T>& rhs) noexcept {
 			bitset<bitSize, T> ret = lhs;
 			return ret ^= rhs;
 		}
 		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator&(const bitset<bitSize, T>& lhs, const bitset<bitSize, T>& rhs) {
+		friend constexpr bitset<bitSize, T> operator&(const bitset<bitSize, T>& lhs, const bitset<bitSize, T>& rhs) noexcept {
 			bitset<bitSize, T> ret = lhs;
 			return ret &= rhs;
 		}
 		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator|(bitset<bitSize, T> lhs, const bitset<bitSize, T>& rhs) {
+		friend constexpr bitset<bitSize, T> operator|(bitset<bitSize, T> lhs, const bitset<bitSize, T>& rhs) noexcept {
 			return lhs |= rhs;
 		}
 		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator|(const bitset<bitSize, T>& lhs, const T& rhs) {
+		friend constexpr bitset<bitSize, T> operator|(const bitset<bitSize, T>& lhs, const T& rhs) noexcept {
 			bitset<bitSize, T> ret;
 			ret.set(rhs);
 			return ret |= lhs;

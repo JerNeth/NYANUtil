@@ -74,4 +74,41 @@ namespace Utility
         std::string output = testing::internal::GetCapturedStdout();
         EXPECT_TRUE(!output.empty());
     }
+    TEST(Log, LogLocationFormatCombo) {
+
+        testing::internal::CaptureStdout();
+        {
+
+            nyan::util::log::info().location().format("{}", "test");
+        }
+        std::string output = testing::internal::GetCapturedStdout();
+        EXPECT_TRUE(!output.empty());
+    }
+    TEST(Log, LogLambda) {
+
+        auto test = []() {
+            nyan::util::log::info().location().format("{}", "test");
+            };
+        auto test2 = [](auto logger) {
+            logger.location().format("{}", "test");
+            };
+        testing::internal::CaptureStdout();
+        {
+            test();
+            test2(nyan::util::log::info());
+        }
+        std::string output = testing::internal::GetCapturedStdout();
+        EXPECT_TRUE(!output.empty());
+    }
+    TEST(Log, LogColor) {
+
+        testing::internal::CaptureStdout();
+        {
+            std::array<uint8_t, 3> color{ 255, 0, 0 };
+            int a = 0;
+            nyan::util::log::info().location().format(color, "{} {}", "test", a);
+        }
+        std::string output = testing::internal::GetCapturedStdout();
+        EXPECT_TRUE(!output.empty());
+    }
 }

@@ -432,4 +432,105 @@ namespace nyan::util::data
         EXPECT_TRUE(bitsetA & bitsetB);
 
     }
+    TEST(BitsetTests, foreach) {
+        enum class Test : uint32_t {
+            A,
+            B,
+            C,
+            D,
+            E,
+            F,
+            G,
+            H,
+            I,
+            K,
+            L,
+            M,
+            N,
+            O,
+            P,
+            Q,
+            R,
+            S,
+            T,
+            U,
+            V,
+            W,
+            X,
+            Y,
+            Z,
+            AA,
+            AB,
+            AC,
+            AD,
+            AE,
+            AF,
+            AG,
+            AH,
+            AI,
+            AK,
+            AL,
+            AM,
+            AN,
+            AO,
+            AP,
+            AQ,
+            AR,
+            AS,
+            AT,
+            AU,
+            AV,
+            AW,
+            AX,
+            AY,
+            AZ,
+            BA,
+            BB,
+            BC,
+            BD,
+            BE,
+            BF,
+            BG,
+            BH,
+            BI,
+            BK,
+            BL,
+            BM,
+            BN,
+            BO,
+            BP,
+            BQ,
+            BR,
+            BS,
+            BT,
+            BU,
+            BV,
+            BW,
+            BX,
+            BY,
+            BZ,
+            Size
+        };
+        using enum Test;
+        bitset<static_cast<size_t>(Test::Size), Test> bitsetA;
+        bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+
+        bitsetA.set(A);
+        bitsetA.set(L);
+        bitsetA.set(M);
+        bitsetA.set(T);
+        bitsetA.set(Y);
+        bitsetA.set(Z);
+        bitsetA.set(AA);
+        //bitsetA.set(BA);
+        bitsetA.set(BS);
+        bitsetA.set(BZ);
+
+        bitsetA.for_each([&](Test t) {
+                bitsetB.flip(t); //Doesn't ABA test, but at least tests against even amount of test executions
+            });
+
+        EXPECT_EQ(bitsetA, bitsetB);
+
+    }
 }
