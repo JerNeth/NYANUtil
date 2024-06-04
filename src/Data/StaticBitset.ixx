@@ -10,7 +10,7 @@ export module NYANData:StaticBitset;
 
 namespace impl {
 	template<class F, class T>
-	concept Callable = requires(F && f, T && t) { std::invoke(std::forward<F>(f), std::forward<T>(t)); };
+	concept Callable = requires(F && f, T && t) { f(t); };
 }
 export namespace nyan::util::data
 {
@@ -98,7 +98,7 @@ export namespace nyan::util::data
 				auto offset = bitsPerWord * i;
 				for (auto idx = std::countr_zero(bits); bits; bits &= ~(1ull << (idx))) {
 					idx = std::countr_zero(bits);
-					std::invoke(std::forward<Fun>(fun), static_cast<T>(idx + offset));
+					fun(static_cast<T>(idx + offset));
 				}
 			}
 		}
