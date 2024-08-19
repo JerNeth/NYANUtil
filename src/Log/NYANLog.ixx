@@ -342,7 +342,7 @@ export namespace nyan::util::log
             }
             return *this;
         }
-        ~Logger() {
+        constexpr ~Logger() {
             if constexpr (!(verbosity & static_cast<uint32_t>(type)))
                 return;
             if (!m_newLine)
@@ -351,67 +351,69 @@ export namespace nyan::util::log
             output(newLine);
         }
 
-        Logger& message(const std::string_view message)& {
+        constexpr Logger& message(const std::string_view message)& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(message);
             return *this;
         }
-        Logger& message(const std::array<uint8_t, 3>& color, const std::string_view message)& {
+        constexpr Logger& message(const std::array<uint8_t, 3>& color, const std::string_view message)& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), message));
             return *this;
         }
-        Logger&& message(const std::string_view message)&& {
+        constexpr Logger&& message(const std::string_view message)&& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(message);
             return std::move(*this);
         }
-        Logger&& message(const std::array<uint8_t, 3>& color, const std::string_view message)&& {
+        constexpr Logger&& message(const std::array<uint8_t, 3>& color, const std::string_view message)&& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), message));
             return std::move(*this);
         }
-        Logger& location(const std::source_location location = std::source_location::current())& {
+        constexpr Logger& location(const std::source_location location = std::source_location::current())& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
             return *this;
         }
-        Logger&& location(const std::source_location location = std::source_location::current())&& {
+        constexpr Logger&& location(const std::source_location location = std::source_location::current())&& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
             return std::move(*this);
         }
         template<typename ...Args>
-        Logger& format(std::string_view view, Args&&... args)& {
+        constexpr Logger& format(std::string_view view, Args&&... args)& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(std::vformat(view, std::make_format_args(args...)));
             return *this;
         }
         template<typename ...Args>
-        Logger& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)& {
+        constexpr Logger& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), std::vformat(view, std::make_format_args(args...))));
             return *this;
         }
         template<typename ...Args>
-        Logger&& format(std::string_view view, Args&&... args)&& {
+        constexpr Logger&& format(std::string_view view, Args&&... args)&& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(std::vformat(view, std::make_format_args(args...)));
             return std::move(*this);
         }
         template<typename ...Args>
-        Logger&& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)&& {
+        constexpr Logger&& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)&& {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 output(std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), std::vformat(view, std::make_format_args(args...))));
             return std::move(*this);
         }
     private:
-        void output(const std::string& data) {
-            fwrite(data.data(), sizeof(std::string::value_type), data.size(), stream());
+        constexpr void output(const std::string& data) {
+            if (!std::is_constant_evaluated())
+                fwrite(data.data(), sizeof(std::string::value_type), data.size(), stream());
             //OutputDebugString(data);
         }
-        void output(std::string_view view) {
-            fwrite(view.data(), sizeof(std::string_view::value_type), view.size(), stream());
+        constexpr void output(std::string_view view) {
+            if (!std::is_constant_evaluated())
+                fwrite(view.data(), sizeof(std::string_view::value_type), view.size(), stream());
             //OutputDebugString(view);
         }
         [[nodiscard]] auto stream() const noexcept {
@@ -426,65 +428,65 @@ export namespace nyan::util::log
         bool m_newLine = true;
     };
 
-    [[nodiscard]] Logger< LoggerType::Verbose> verbose() noexcept
+    [[nodiscard]] constexpr Logger< LoggerType::Verbose> verbose() noexcept
     {
         return {};
     }
-    [[nodiscard]] Logger< LoggerType::Warn> warning() noexcept
+    [[nodiscard]] constexpr Logger< LoggerType::Warn> warning() noexcept
     {
         return {};
     }
-    [[nodiscard]] Logger< LoggerType::Info> info() noexcept
+    [[nodiscard]] constexpr Logger< LoggerType::Info> info() noexcept
     {
         return {};
     }
-    [[nodiscard]] Logger< LoggerType::Error>  error() noexcept
+    [[nodiscard]] constexpr Logger< LoggerType::Error>  error() noexcept
     {
         return {};
     }
-    [[nodiscard]] Logger< LoggerType::Critical>  critical() noexcept
+    [[nodiscard]] constexpr Logger< LoggerType::Critical>  critical() noexcept
     {
         return {};
     }
 
-    auto verbose_message(const std::string_view message)
+    constexpr auto verbose_message(const std::string_view message)
     {
         return verbose().message(message);
     }
-    auto warning_message(const std::string_view message)
+    constexpr auto warning_message(const std::string_view message)
     {
         return warning().message(message);
     }
-    auto info_message(const std::string_view message)
+    constexpr auto info_message(const std::string_view message)
     {
         return info().message(message);
     }
-    auto error_message(const std::string_view message)
+    constexpr auto error_message(const std::string_view message)
     {
         return error().message(message);
     }
-    auto critical_message(const std::string_view message)
+    constexpr auto critical_message(const std::string_view message)
     {
         return critical().message(message);
     }
 
-    auto verbose_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+    constexpr auto verbose_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
         return verbose().message(color, message);
     }
-    auto warning_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+    constexpr auto warning_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
         return warning().message(color, message);
     }
-    auto info_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+    constexpr auto info_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
         return info().message(color, message);
     }
-    auto error_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+    constexpr auto error_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
         return error().message(color, message);
     }
-    auto critical_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+    constexpr auto critical_message(const std::array<uint8_t, 3>& color, const std::string_view message)
     {
         return critical().message(color, message);
     }
