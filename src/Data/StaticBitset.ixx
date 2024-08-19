@@ -79,6 +79,20 @@ export namespace nyan::util::data
 			}
 			return false;
 		}
+		template<class Head, class... Tail>
+		using are_same = std::conjunction<std::is_same<Head, Tail>...>;
+		template<typename... Tail, class = std::enable_if_t<are_same<T, Tail...>::value, void>>
+		constexpr bool all_of(Tail... args) const noexcept {
+			bitset flags;
+			flags = (flags | ... | args);
+			for (size_t i = 0; i < typeSize; i++) {
+				bitType tmp = flags.m_data[i] & m_data[i];
+				if (tmp != flags.m_data[i])
+					return false;
+			}
+			return true;
+		}
+
 		template<typename... Tail, class = std::enable_if_t<are_same<T, Tail...>::value, void>>
 		constexpr bitset get_and_clear(Tail... args) noexcept {
 			bitset flags;
@@ -96,7 +110,7 @@ export namespace nyan::util::data
 			for (size_t i = 0; i < typeSize; i++) {
 				auto bits = m_data[i];
 				auto offset = bitsPerWord * i;
-				for (auto idx = std::countr_zero(bits); bits; bits &= ~(1ull << (idx))) {
+				for (auto idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
 					idx = std::countr_zero(bits);
 					fun(static_cast<T>(idx + offset));
 				}

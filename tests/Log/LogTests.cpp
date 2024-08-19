@@ -111,4 +111,38 @@ namespace Utility
         std::string output = testing::internal::GetCapturedStdout();
         EXPECT_TRUE(!output.empty());
     }
+    TEST(Log, LogFormatLambdaTests) {
+
+        auto lambda = [&](auto logger) {
+            std::array<uint8_t, 3> color{ 255, 0, 0 };
+            int a = 0;
+            logger.format("Hello {}", "World");
+            };
+        testing::internal::CaptureStdout();
+        {
+            lambda(nyan::util::log::info().location());
+        }
+        std::string output = testing::internal::GetCapturedStdout();
+        EXPECT_TRUE(!output.empty());
+    }
+    TEST(Log, LogFormatClassLambdaTests) {
+        class Test {
+        public:
+            void function(uint32_t value) {
+                auto lambda = [&](auto logger, std::string_view message, auto value2) {
+                    std::array<uint8_t, 3> color{ 255, 0, 0 };
+                    int a = 0;
+                    logger.format(message, "World", value2);
+                    };
+                lambda(nyan::util::log::info().location(), "Hello {} {}", value);
+            }
+        };
+        testing::internal::CaptureStdout();
+        {
+            Test t;
+            t.function(32);
+        }
+        std::string output = testing::internal::GetCapturedStdout();
+        EXPECT_TRUE(!output.empty());
+    }
 }
