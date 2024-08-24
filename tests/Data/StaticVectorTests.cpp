@@ -94,14 +94,98 @@ namespace nyan::util::data
     TEST(StaticVectorTests, Iterators) {
 
         StaticVector<uint32_t, 4> s;
-        s.push_back(0);
-        s.push_back(1);
-        s.push_back(2);
-        s.push_back(3);
+        ASSERT_TRUE(s.push_back(0));
+        ASSERT_TRUE(s.push_back(1));
+        ASSERT_TRUE(s.push_back(2));
+        ASSERT_TRUE(s.push_back(3));
 
         uint32_t sum = 0;
         for (auto a : s)
             sum += a;
         EXPECT_EQ(sum, 6);
+    }
+
+    TEST(StaticVectorTests, Move) {
+
+        StaticVector<uint32_t, 4> s;
+        ASSERT_TRUE(s.push_back(0));
+        ASSERT_TRUE(s.push_back(1));
+        ASSERT_TRUE(s.push_back(2));
+        ASSERT_TRUE(s.push_back(3));
+
+        StaticVector<uint32_t, 4> t{ std::move(s) };
+        EXPECT_EQ(t[0], 0);
+        EXPECT_EQ(t[1], 1);
+        EXPECT_EQ(t[2], 2);
+        EXPECT_EQ(t[3], 3);
+
+        t[3] = 6;
+
+        s = t.copy();
+
+        EXPECT_EQ(s[3], 6);
+
+        auto l = std::move(s);
+
+        EXPECT_EQ(l[3], 6);
+
+    }
+    TEST(StaticVectorTests, MoveNonTrivial) {
+        struct T {
+            T() noexcept {
+                data = 0;
+            }
+            T(uint32_t d) noexcept {
+                data = d;
+            }
+            T(const T& t) noexcept {
+                data = t.data;
+            }
+            T(T&& t) noexcept {
+                data = t.data;
+                t.data = 0;
+            }
+            ~T() noexcept {
+                data = 9999;
+            }
+            T& operator=(const T& t) noexcept
+            {
+                data = t.data;
+                return *this;
+            }
+            T& operator=(T&& t) noexcept
+            {
+                data = t.data;
+                t.data = 0;
+                return *this;
+            }
+            uint32_t data;
+        };
+        StaticVector<T, 4> s;
+        ASSERT_TRUE(s.push_back(0));
+        ASSERT_TRUE(s.push_back(1));
+        ASSERT_TRUE(s.push_back(2));
+        ASSERT_TRUE(s.push_back(3));
+
+        StaticVector<T, 4> t{ std::move(s) };
+        EXPECT_EQ(t[0].data, 0);
+        EXPECT_EQ(t[1].data, 1);
+        EXPECT_EQ(t[2].data, 2);
+        EXPECT_EQ(t[3].data, 3);
+
+        t[3].data = 6;
+
+        s = t.copy();
+
+        EXPECT_EQ(s[3].data, 6);
+
+        auto l = std::move(s);
+
+        EXPECT_EQ(l[3].data, 6);
+
+        s = l;
+
+        EXPECT_EQ(s[3].data, 6);
+
     }
 }
