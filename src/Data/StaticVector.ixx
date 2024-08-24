@@ -8,21 +8,21 @@ module;
 #include <cstdlib>
 #include <vector>
 
-export module NYANData:DynamicArray;
+export module NYANData:StaticVector;
 import :CommonConcepts;
 
 export namespace nyan::util::data
 {
-	template<NoexceptionType T>
-	class DynArray
+	template<NoexceptionType T, size_t Capacity>
+	class StaticVector
 	{
 	public:
+		using size_type = std::conditional_t< Capacity <= std::numeric_limits<uint8_t>::max(), uint8_t, std::conditional_t < Capacity <= std::numeric_limits<uint16_t>::max(), uint16_t, std::conditional_t < Capacity <= std::numeric_limits<uint32_t>::max(), uint32_t, uint64_t>>>;
 		using value_type = T;
 		using pointer = T*;
 		using const_pointer = const T*;
 		using reference = T&;
 		using const_reference = const T&;
-		using size_type = size_t;
 		using difference_type = ptrdiff_t;
 
 		struct Iterator
@@ -76,12 +76,12 @@ export namespace nyan::util::data
 			Iterator(const pointer p) noexcept :
 				m_ptr(p)
 			{
-				
+
 			}
 			Iterator(const Iterator& other) noexcept = default;
 		private:
 
-			pointer m_ptr {nullptr};
+			pointer m_ptr{ nullptr };
 		};
 		struct Const_Iterator
 		{
@@ -91,7 +91,7 @@ export namespace nyan::util::data
 			using const_pointer = const_pointer;  // or also value_type*
 			using const_reference = const_reference;  // or also value_type&
 
-			const_reference operator*() const noexcept{ return *m_ptr; }
+			const_reference operator*() const noexcept { return *m_ptr; }
 			const_pointer operator->() const noexcept { return m_ptr; }
 
 			Const_Iterator& operator++() noexcept { ++m_ptr; return *this; }
@@ -142,72 +142,12 @@ export namespace nyan::util::data
 			const_pointer m_ptr{ nullptr };
 		};
 	public:
-		constexpr DynArray() noexcept = default;
-		constexpr ~DynArray() noexcept
+		constexpr StaticVector() noexcept = default;
+		constexpr ~StaticVector() noexcept
 		{
-			assert(!(static_cast<bool>(m_data) ^ static_cast <bool>(m_capacity)));
-			clean();
-			if (m_data)
-#if _MSC_VER
-				_aligned_free(m_data);
-#else
-				free(m_data);
-#endif
-		}
-		//Implicit copys are evil
-		DynArray(const DynArray& other) = delete;
-
-		template<typename = std::enable_if_t<std::is_copy_constructible_v<value_type> || (std::is_copy_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
-		[[nodiscard]] std::optional<DynArray> copy() noexcept
-		{
-			if(!m_data)
-				return DynArray{ nullptr, 0, 0 };
-
-			static_assert(!(sizeof(value_type) % alignof(value_type)));
-
-			const size_type allocatedDataSize = m_capacity * sizeof(value_type);
-#if _MSC_VER
-			const pointer data = static_cast<pointer>(_aligned_malloc(allocatedDataSize, alignof(value_type)));
-#else
-			const pointer data = static_cast<pointer>(aligned_alloc(alignof(value_type), allocatedDataSize));
-#endif
-			if (!data)
-				return std::nullopt;
-
-			const size_type dataSize = m_size * sizeof(value_type);
-
-			if constexpr (std::is_trivially_copyable_v<value_type>)
-				std::memcpy(data, m_data, dataSize);
-			else if constexpr (std::is_copy_constructible_v<value_type>)
-				for (size_type i = 0; i < m_size; ++i)
-					new (&m_data[i]) value_type(m_data[i]);
-			else
-				for (size_type i = 0; i < m_size; ++i)
-					*static_cast<value_type*>(new (&m_data[i]) value_type()) = m_data[i];
-
-			return DynArray{data, m_size, m_capacity};
+			clear();
 		}
 
-		constexpr DynArray(DynArray&& other) noexcept :
-			m_data(std::exchange(other.m_data, nullptr)),
-			m_size(std::exchange(other.m_size, 0)),
-			m_capacity(std::exchange(other.m_capacity, 0))
-		{
-		}
-
-		DynArray& operator=(DynArray& other) = delete;
-
-		constexpr DynArray& operator=(DynArray&& other) noexcept
-		{
-			if(this != std::addressof(other))
-			{
-				std::swap(m_data, other.m_data);
-				std::swap(m_size, other.m_size);
-				std::swap(m_capacity, other.m_capacity);
-			}
-			return *this;
-		}
-		
 		void pop_back() noexcept
 		{
 			if (!m_size)
@@ -215,23 +155,22 @@ export namespace nyan::util::data
 			--m_size;
 
 			if constexpr (!std::is_trivially_destructible_v<value_type>)
-				m_data[m_size].~value_type();
-			
+				operator[](m_size).~value_type();
+
 		}
 
 		template<typename = std::enable_if_t<std::is_move_constructible_v<value_type> || (std::is_move_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
 		[[nodiscard]] bool push_back(value_type&& value) noexcept
 		{
-			if (m_size >= m_capacity)
-				if (!grow(calc_new_capacity()))
-					return false;
+			if (m_size >= Capacity)
+				return false;
 
 			if constexpr (std::is_trivially_move_constructible_v<value_type>)
-				std::memcpy(&m_data[m_size++], &value, sizeof(value_type));
+				std::memcpy(&operator[](m_size++), &value, sizeof(value_type));
 			else if constexpr (std::is_move_constructible_v<value_type>)
-				std::construct_at(&m_data[m_size++], std::move(value));
+				std::construct_at(&operator[](m_size++), std::move(value));
 			else
-				*std::construct_at(&m_data[m_size++]) = std::move(value);
+				*std::construct_at(&operator[](m_size++)) = std::move(value);
 
 			return true;
 		}
@@ -239,17 +178,16 @@ export namespace nyan::util::data
 		template<typename = std::enable_if_t<std::is_copy_constructible_v<value_type> || (std::is_copy_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
 		[[nodiscard]] bool push_back(const value_type& value) noexcept
 		{
-			if (m_size >= m_capacity)
-				if (!grow(calc_new_capacity()))
-					return false;
-			
+			if (m_size >= Capacity)
+				return false;
+
 
 			if constexpr (std::is_trivially_copy_constructible_v<value_type>)
 				std::memcpy(&m_data[m_size++], &value, sizeof(value_type));
 			else if constexpr (std::is_copy_constructible_v<value_type>)
-				std::construct_at(&m_data[m_size++], value);
+				std::construct_at(&operator[](m_size++), value);
 			else
-				*std::construct_at(&m_data[m_size++]) = value;
+				*std::construct_at(&operator[](m_size++)) = value;
 
 			return true;
 		}
@@ -258,76 +196,16 @@ export namespace nyan::util::data
 		[[nodiscard]] bool emplace_back(Args&&... args) noexcept
 		{
 			static_assert(std::is_nothrow_constructible_v<value_type, Args...>);
-			if (m_size >= m_capacity)
-				if (!grow(calc_new_capacity()))
-					return false;
+			if (m_size >= Capacity)
+				return false;
 
-			std::construct_at(&m_data[m_size++], std::forward<Args>(args)...);
-			return true;
-		}
-		
-		constexpr void clear() noexcept
-		{
-			clean();
-		}
-
-
-		template<typename = std::enable_if_t<std::is_default_constructible_v<value_type>>>
-		[[nodiscard]] bool resize(const size_type count) noexcept
-		{
-			if (m_size == count)
-				return true;
-
-			if (m_size < count) {
-				if (!grow(count))
-					return false;
-
-				for (; m_size < count; ++m_size)
-					std::construct_at(&m_data[m_size]);
-				return true;
-			}
-
-			if constexpr (!std::is_trivially_destructible_v<value_type>)
-				while (m_size > count)
-					m_data[--m_size].~value_type();
-			else
-				m_size = count;
-
+			std::construct_at(&operator[](m_size++), std::forward<Args>(args)...);
 			return true;
 		}
 
-		template<typename = std::enable_if_t<std::is_copy_constructible_v<value_type>>>
-		[[nodiscard]] bool resize(const size_type count, const value_type& value) noexcept
+		[[nodiscard]] constexpr size_type capacity() const noexcept
 		{
-			if (m_size == count)
-				return true;
-
-			if (m_size < count) {
-				if (!grow(count))
-					return false;
-
-				for (; m_size < count; ++m_size)
-					std::construct_at(&m_data[m_size], value);
-				return true;
-			}
-
-			if constexpr (!std::is_trivially_destructible_v<value_type>)
-				while (m_size > count)
-					m_data[--m_size].~value_type();
-			else
-				m_size = count;
-
-			return true;
-		}
-
-		[[nodiscard]] bool reserve(size_type size) noexcept
-		{
-			return grow(size);
-		}
-
-		[[nodiscard]] size_type capacity() const noexcept
-		{
-			return m_capacity;
+			return Capacity;
 		}
 
 		[[nodiscard]] size_type size() const noexcept
@@ -340,135 +218,78 @@ export namespace nyan::util::data
 			return !m_size;
 		}
 
+
 		[[nodiscard]] reference operator[](size_type idx) noexcept
 		{
-			assert(m_data);
 			assert(m_size > idx);
-			return m_data[idx];
+			return data()[idx];
 		}
 
 		[[nodiscard]] const_reference operator[](size_type idx) const noexcept
 		{
-			assert(m_data);
 			assert(m_size > idx);
-			return m_data[idx];
+			return data()[idx];
 		}
 
 		[[nodiscard]] reference front() noexcept
 		{
-			return m_data[0];
+			return operator[](0);
 		}
 
 		[[nodiscard]] const_reference front() const noexcept
 		{
-			return m_data[0];
+			return operator[](0);
 		}
 
 		[[nodiscard]] reference back() noexcept
 		{
-			return m_data[m_size - 1];
+			return operator[](m_size - 1);
 		}
 
 		[[nodiscard]] const_reference back() const noexcept
 		{
-			return m_data[m_size - 1];
+			return operator[](m_size - 1);
 		}
 
 		[[nodiscard]] pointer data() noexcept
 		{
-			return m_data;
+			return reinterpret_cast<pointer>(m_data.data());
 		}
 
 		[[nodiscard]] const_pointer data() const noexcept
 		{
-			return m_data;
+			return reinterpret_cast<const_pointer>(m_data.data());
 		}
 
 		[[nodiscard]] Iterator begin() noexcept
 		{
-			return Iterator(m_data);
+			return Iterator(data());
 		}
 		[[nodiscard]] Iterator end() noexcept
 		{
-			return Iterator(m_data + m_size);
+			return Iterator(data() + m_size);
 		}
 
 		[[nodiscard]] Const_Iterator cbegin() const noexcept
 		{
-			return Const_Iterator(m_data);
+			return Const_Iterator(data());
 		}
 		[[nodiscard]] Const_Iterator cend() const noexcept
 		{
-			return Const_Iterator(m_data + m_size);
+			return Const_Iterator(data() + m_size);
 		}
 
-		friend constexpr void swap(DynArray& lhs, DynArray& rhs) noexcept
-		{
-			if(std::addressof(lhs) != std::addressof(rhs))
-			{
-				std::swap(lhs.m_data, rhs.m_data);
-				std::swap(lhs.m_size, rhs.m_size);
-				std::swap(lhs.m_capacity, rhs.m_capacity);
-			}
-		}
-		
-	private:
-		DynArray(const pointer data, const size_type size, const size_type capacity) noexcept :
-			m_data(data),
-			m_size(size),
-			m_capacity(capacity)
-		{
-			
-		}
-
-		bool grow(const size_type newCapacity) noexcept
-		{
-
-			if (m_capacity > newCapacity)
-				return true;
-
-			static_assert(!(sizeof(value_type) % alignof(value_type)));
-			m_capacity = newCapacity;
-			const size_type allocatedDataSize = m_capacity * sizeof(value_type);
-
-#ifdef _MSC_VER
-			auto* data = static_cast<pointer>(_aligned_realloc(m_data, allocatedDataSize, alignof(value_type)));
-#else
-			auto* data = static_cast<pointer>(aligned_alloc(alignof(value_type), allocatedDataSize));
-#endif
-			if (!data)
-				return false;
-			std::swap(data, m_data);
-
-#ifndef _MSC_VER
-			const size_type dataSize = m_size * sizeof(value_type);
-			std::memcpy(m_data, data, dataSize);
-			free(data);
-#endif
-			
-			return true;
-		}
-
-		constexpr size_t calc_new_capacity() const noexcept
-		{
-			auto newCapacity = m_capacity;
-			newCapacity += m_capacity >> 1;
-			newCapacity += m_capacity & 0x1;
-			return std::max(newCapacity, 1ull);
-		}
-
-		constexpr void clean() noexcept
+		void clear() noexcept
 		{
 			static_assert(std::is_nothrow_destructible_v<value_type>);
-			if constexpr (!std::is_trivially_destructible_v<value_type>) {
+			if constexpr (!std::is_trivially_destructible<T>())
 				for (size_type i = 0; i < m_size; ++i)
-					m_data[i].~T();
-			}
+					operator[](i).~value_type();
 			m_size = 0;
 		}
+	private:
 
-		pointer m_data {nullptr};
+		alignas(alignof(T)) std::array<std::byte, sizeof(T)* Capacity> m_data;
 		size_type m_size{ 0 };
-		size_type m_capacity {0};
 	};
 }
