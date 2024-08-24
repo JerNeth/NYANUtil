@@ -188,4 +188,18 @@ namespace nyan::util::data
         EXPECT_EQ(s[3].data, 6);
 
     }
+    TEST(StaticVectorTests, DefaultConstruct) {
+
+        StaticVector<uint32_t, 4> s { 4u };
+        std::array<std::byte, sizeof(s)> a;
+
+
+        auto* ptr = std::construct_at(reinterpret_cast<decltype(&s)>(a.data()), 4);
+
+        ptr->back() = 5;
+
+        auto* ptr2 = std::construct_at(reinterpret_cast<decltype(&s)>(a.data()), 3);
+        
+        EXPECT_EQ(ptr->operator[](3), 5); //Probably UB, and out of bounds access but this tests intended behaviour and is not a valid use case
+    }
 }

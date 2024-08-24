@@ -149,11 +149,18 @@ export namespace nyan::util::data
 			clear();
 		}
 
+		template<typename = std::enable_if_t<std::is_nothrow_default_constructible_v<value_type>> >
+		constexpr StaticVector(size_type count) noexcept
+		{
+			assert(Capacity > count);
+
+			for(m_size = 0; m_size < std::min(static_cast<decltype(Capacity)>(count), Capacity); ++m_size)
+				std::construct_at(&operator[](m_size));
+		}
+
 		template<typename = 
-				std::enable_if_t<
-					std::is_nothrow_copy_constructible_v<value_type> || (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)
-				>
-			>
+			std::enable_if_t<std::is_nothrow_copy_constructible_v<value_type> 
+			|| (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)>>
 		[[nodiscard]] constexpr StaticVector copy() noexcept
 		{
 			if (!m_size)
