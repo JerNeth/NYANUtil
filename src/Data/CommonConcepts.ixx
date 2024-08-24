@@ -4,7 +4,7 @@ module;
 
 export module NYANData:CommonConcepts;
 
-export namespace nyan::util::data
+export namespace nyan
 {
 	template<typename T>
 	concept NoexceptionType = (!std::is_default_constructible_v<T> || std::is_nothrow_default_constructible_v<T>) &&

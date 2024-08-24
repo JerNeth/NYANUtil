@@ -7,7 +7,7 @@ export module NYANMath:Half;
 import :Util;
 import :Constants;
 
-export namespace nyan::util::math
+export namespace nyan
 {
 	struct half {
 	private:

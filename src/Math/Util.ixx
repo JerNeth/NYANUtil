@@ -6,7 +6,7 @@ module;
 
 export module NYANMath:Util;
 
-export namespace nyan::util::math
+export namespace nyan
 {
 	struct half;
 	template<typename T>
@@ -52,15 +52,6 @@ export namespace nyan::util::math
 	template<ScalarT T>
 	constexpr const T square(const T& a) noexcept {
 		return a * a;
-	}
-	template<int size, bool column_major = true>
-	constexpr int at(int x, int y) {
-		if constexpr (column_major) {
-			return x * size + y;
-		}
-		else {
-			return y * size + x;
-		}
 	}
 	template<size_t size, bool column_major = true>
 	constexpr size_t at(size_t x, size_t y) {

@@ -2,7 +2,7 @@ import NYANData;
 
 #include <gtest/gtest.h>
 
-namespace nyan::util::data
+namespace nyan
 {
     TEST(BitsetTests, setAndTest) {
         enum class Test : uint32_t {

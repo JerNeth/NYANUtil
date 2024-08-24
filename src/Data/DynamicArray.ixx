@@ -11,10 +11,10 @@ module;
 export module NYANData:DynamicArray;
 import :CommonConcepts;
 
-export namespace nyan::util::data
+export namespace nyan
 {
 	template<NoexceptionType T>
-	class DynArray
+	class DynamicArray
 	{
 	public:
 		using value_type = T;
@@ -142,8 +142,8 @@ export namespace nyan::util::data
 			const_pointer m_ptr{ nullptr };
 		};
 	public:
-		constexpr DynArray() noexcept = default;
-		constexpr ~DynArray() noexcept
+		constexpr DynamicArray() noexcept = default;
+		constexpr ~DynamicArray() noexcept
 		{
 			assert(!(static_cast<bool>(m_data) ^ static_cast <bool>(m_capacity)));
 			clean();
@@ -155,13 +155,13 @@ export namespace nyan::util::data
 #endif
 		}
 		//Implicit copys are evil
-		DynArray(const DynArray& other) = delete;
+		DynamicArray(const DynamicArray& other) = delete;
 
 		template<typename = std::enable_if_t<std::is_copy_constructible_v<value_type> || (std::is_copy_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
-		[[nodiscard]] std::optional<DynArray> copy() noexcept
+		[[nodiscard]] std::optional<DynamicArray> copy() noexcept
 		{
 			if(!m_data)
-				return DynArray{ nullptr, 0, 0 };
+				return DynamicArray{ nullptr, 0, 0 };
 
 			static_assert(!(sizeof(value_type) % alignof(value_type)));
 
@@ -185,19 +185,19 @@ export namespace nyan::util::data
 				for (size_type i = 0; i < m_size; ++i)
 					*static_cast<value_type*>(new (&m_data[i]) value_type()) = m_data[i];
 
-			return DynArray{data, m_size, m_capacity};
+			return DynamicArray{data, m_size, m_capacity};
 		}
 
-		constexpr DynArray(DynArray&& other) noexcept :
+		constexpr DynamicArray(DynamicArray&& other) noexcept :
 			m_data(std::exchange(other.m_data, nullptr)),
 			m_size(std::exchange(other.m_size, 0)),
 			m_capacity(std::exchange(other.m_capacity, 0))
 		{
 		}
 
-		DynArray& operator=(DynArray& other) = delete;
+		DynamicArray& operator=(DynamicArray& other) = delete;
 
-		constexpr DynArray& operator=(DynArray&& other) noexcept
+		constexpr DynamicArray& operator=(DynamicArray&& other) noexcept
 		{
 			if(this != std::addressof(other))
 			{
@@ -402,7 +402,7 @@ export namespace nyan::util::data
 			return Const_Iterator(m_data + m_size);
 		}
 
-		friend constexpr void swap(DynArray& lhs, DynArray& rhs) noexcept
+		friend constexpr void swap(DynamicArray& lhs, DynamicArray& rhs) noexcept
 		{
 			if(std::addressof(lhs) != std::addressof(rhs))
 			{
@@ -413,7 +413,7 @@ export namespace nyan::util::data
 		}
 		
 	private:
-		DynArray(const pointer data, const size_type size, const size_type capacity) noexcept :
+		DynamicArray(const pointer data, const size_type size, const size_type capacity) noexcept :
 			m_data(data),
 			m_size(size),
 			m_capacity(capacity)

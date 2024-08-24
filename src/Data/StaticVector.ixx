@@ -9,7 +9,7 @@ module;
 export module NYANData:StaticVector;
 import :CommonConcepts;
 
-export namespace nyan::util::data
+export namespace nyan
 {
 	template<NoexceptionType T, size_t Capacity>
 	class StaticVector

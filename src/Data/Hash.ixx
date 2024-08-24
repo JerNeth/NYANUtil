@@ -105,7 +105,7 @@ namespace impl
 	}
 }
 
-export namespace nyan::util::data
+export namespace nyan
 {
 	using HashValue = uint64_t;
 
@@ -172,7 +172,7 @@ export namespace nyan::util::data
 		static constexpr HashValue prime{ 0x100000001b3ull };
 		HashValue hash = 0xcbf29ce484222325ull;
 		for (const auto& date : data)
-			hash = (hash ^ data::hash(date)) * prime;
+			hash = (hash ^ nyan::hash(date)) * prime;
 		return hash;
 	}
 

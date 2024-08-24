@@ -5,7 +5,7 @@ import NYANData;
 #include <span>
 #include <random>
 
-namespace nyan::util::data
+namespace nyan
 {
     TEST(Hashtests, ConstexprArbitraryHash) {
         constexpr auto aVal = 64531214;
@@ -16,11 +16,11 @@ namespace nyan::util::data
             uint64_t b{ static_cast<uint64_t>(bVal) };
         } c;
 
-        constexpr auto cba = data::hash(B{});
+        constexpr auto cba = hash(B{});
 
 
-        constexpr data::HashValue prime{ 0x100000001b3ull };
-        constexpr data::HashValue hashSeed = 0xcbf29ce484222325ull;
+        constexpr HashValue prime{ 0x100000001b3ull };
+        constexpr HashValue hashSeed = 0xcbf29ce484222325ull;
 
         constexpr auto aHashVal = (hashSeed ^ aVal) * prime;
         constexpr auto bHashVal = (hashSeed ^ bVal) * prime;
@@ -41,7 +41,7 @@ namespace nyan::util::data
 
         std::array g{ B{}, B{}, B{}, B{} ,B{},B{},B{},B{},B{},B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} ,B{} };
 
-        auto cba = data::hash(std::span{g} );
+        auto cba = hash(std::span{g} );
 
 
         EXPECT_EQ(cba, 14695981039346656037);
@@ -55,7 +55,7 @@ namespace nyan::util::data
             data.push_back(static_cast<std::byte>(rand()% 255));
         }
 
-        auto cba = data::hash(std::span{ data });
+        auto cba = hash(std::span{ data });
 
 
         EXPECT_EQ(cba, 13931541190864799959);

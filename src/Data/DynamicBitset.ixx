@@ -8,7 +8,7 @@ module;
 
 export module NYANData:DynamicBitset;
 
-export namespace nyan::util::data
+export namespace nyan
 {
 	class DynamicBitset {
 		using StorageType = unsigned long long;

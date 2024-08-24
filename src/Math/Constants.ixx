@@ -1,6 +1,6 @@
 export module NYANMath:Constants;
 
-export namespace nyan::util::math
+export namespace nyan
 {
 	// ============================================================================================================
 	// Constants

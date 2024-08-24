@@ -299,7 +299,7 @@ namespace impl
     }
 }
 
-export namespace nyan::util::log
+export namespace nyan
 {
     enum class LoggerType : uint32_t
     {
@@ -428,66 +428,67 @@ export namespace nyan::util::log
         bool m_newLine = true;
     };
 
-    [[nodiscard]] constexpr Logger< LoggerType::Verbose> verbose() noexcept
-    {
-        return {};
-    }
-    [[nodiscard]] constexpr Logger< LoggerType::Warn> warning() noexcept
-    {
-        return {};
-    }
-    [[nodiscard]] constexpr Logger< LoggerType::Info> info() noexcept
-    {
-        return {};
-    }
-    [[nodiscard]] constexpr Logger< LoggerType::Error>  error() noexcept
-    {
-        return {};
-    }
-    [[nodiscard]] constexpr Logger< LoggerType::Critical>  critical() noexcept
-    {
-        return {};
-    }
+    namespace log {
+        [[nodiscard]] constexpr Logger< LoggerType::Verbose> verbose() noexcept
+        {
+            return {};
+        }
+        [[nodiscard]] constexpr Logger< LoggerType::Warn> warning() noexcept
+        {
+            return {};
+        }
+        [[nodiscard]] constexpr Logger< LoggerType::Info> info() noexcept
+        {
+            return {};
+        }
+        [[nodiscard]] constexpr Logger< LoggerType::Error>  error() noexcept
+        {
+            return {};
+        }
+        [[nodiscard]] constexpr Logger< LoggerType::Critical>  critical() noexcept
+        {
+            return {};
+        }
+        constexpr auto verbose_message(const std::string_view message)
+        {
+            return verbose().message(message);
+        }
+        constexpr auto warning_message(const std::string_view message)
+        {
+            return warning().message(message);
+        }
+        constexpr auto info_message(const std::string_view message)
+        {
+            return info().message(message);
+        }
+        constexpr auto error_message(const std::string_view message)
+        {
+            return error().message(message);
+        }
+        constexpr auto critical_message(const std::string_view message)
+        {
+            return critical().message(message);
+        }
 
-    constexpr auto verbose_message(const std::string_view message)
-    {
-        return verbose().message(message);
-    }
-    constexpr auto warning_message(const std::string_view message)
-    {
-        return warning().message(message);
-    }
-    constexpr auto info_message(const std::string_view message)
-    {
-        return info().message(message);
-    }
-    constexpr auto error_message(const std::string_view message)
-    {
-        return error().message(message);
-    }
-    constexpr auto critical_message(const std::string_view message)
-    {
-        return critical().message(message);
-    }
-
-    constexpr auto verbose_message(const std::array<uint8_t, 3>& color, const std::string_view message)
-    {
-        return verbose().message(color, message);
-    }
-    constexpr auto warning_message(const std::array<uint8_t, 3>& color, const std::string_view message)
-    {
-        return warning().message(color, message);
-    }
-    constexpr auto info_message(const std::array<uint8_t, 3>& color, const std::string_view message)
-    {
-        return info().message(color, message);
-    }
-    constexpr auto error_message(const std::array<uint8_t, 3>& color, const std::string_view message)
-    {
-        return error().message(color, message);
-    }
-    constexpr auto critical_message(const std::array<uint8_t, 3>& color, const std::string_view message)
-    {
-        return critical().message(color, message);
+        constexpr auto verbose_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+        {
+            return verbose().message(color, message);
+        }
+        constexpr auto warning_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+        {
+            return warning().message(color, message);
+        }
+        constexpr auto info_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+        {
+            return info().message(color, message);
+        }
+        constexpr auto error_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+        {
+            return error().message(color, message);
+        }
+        constexpr auto critical_message(const std::array<uint8_t, 3>& color, const std::string_view message)
+        {
+            return critical().message(color, message);
+        }
     }
 }

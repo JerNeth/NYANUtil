@@ -3,7 +3,7 @@ import NYANData;
 #include <random>
 #include <gtest/gtest.h>
 
-namespace nyan::util::data
+namespace nyan
 {
 	struct alignas(64) test {
 		int b;
@@ -35,12 +35,12 @@ namespace nyan::util::data
 	};
 	TEST(DynamicArrayTests, emplaceAndClearAndSize) {
 
-		DynArray<uint32_t> c;
+		DynamicArray<uint32_t> c;
 
 		EXPECT_TRUE(c.emplace_back(0));
 		EXPECT_EQ(c.size(), 1);
 
-		DynArray<emplaceTestClass> emplaceTests;
+		DynamicArray<emplaceTestClass> emplaceTests;
 
 		EXPECT_TRUE(emplaceTests.emplace_back(0));
 		EXPECT_EQ(emplaceTests.size(), 1);
@@ -180,12 +180,12 @@ namespace nyan::util::data
 	};
 	TEST(DynamicArrayTests, pushBack) {
 
-		DynArray<uint32_t> c;
+		DynamicArray<uint32_t> c;
 
 		EXPECT_TRUE(c.push_back(0));
 		EXPECT_EQ(c.size(), 1);
 
-		DynArray<emplaceTestClass> pushTests;
+		DynamicArray<emplaceTestClass> pushTests;
 
 		EXPECT_TRUE(pushTests.push_back(emplaceTestClass{ 0 }));
 		EXPECT_EQ(pushTests.size(), 1);
@@ -221,7 +221,7 @@ namespace nyan::util::data
 			EXPECT_EQ(pushTests[i], i);
 		}
 
-		DynArray<NonTrivialClass> pushNonTrivialTests;
+		DynamicArray<NonTrivialClass> pushNonTrivialTests;
 		NonTrivialClass tmp(5);
 		ASSERT_TRUE(pushNonTrivialTests.push_back(tmp));
 		EXPECT_EQ(pushNonTrivialTests.size(), 1);
@@ -232,20 +232,20 @@ namespace nyan::util::data
 		EXPECT_EQ(pushNonTrivialTests[1], 5);
 		EXPECT_EQ(NonTrivialClass::destructorCount, 0);
 
-		DynArray<MoveOnlyClass> pushMoveOnlyTests;
+		DynamicArray<MoveOnlyClass> pushMoveOnlyTests;
 		MoveOnlyClass tmp2(56);
 		ASSERT_TRUE(pushMoveOnlyTests.push_back(std::move(tmp2)));
 		EXPECT_EQ(pushMoveOnlyTests.size(), 1);
 		EXPECT_EQ(pushMoveOnlyTests[0], 56);
 		EXPECT_EQ(MoveOnlyClass::destructorCount, 0);
 
-		DynArray<MoveOnlyClass> pushMoveOnlyTests2 = std::move(pushMoveOnlyTests);
+		DynamicArray<MoveOnlyClass> pushMoveOnlyTests2 = std::move(pushMoveOnlyTests);
 		EXPECT_EQ(pushMoveOnlyTests2.size(), 1);
 		EXPECT_EQ(pushMoveOnlyTests2[0], 56);
 		EXPECT_EQ(MoveOnlyClass::destructorCount, 0);
 
 		
-		DynArray<MoveAssignOnlyClass> pushMoveOnlyTests3;
+		DynamicArray<MoveAssignOnlyClass> pushMoveOnlyTests3;
 		MoveAssignOnlyClass tmp3(56);
 		ASSERT_TRUE(pushMoveOnlyTests3.push_back(std::move(tmp3)));
 		EXPECT_EQ(pushMoveOnlyTests3.size(), 1);
@@ -258,7 +258,7 @@ namespace nyan::util::data
 	}
 	TEST(DynamicArrayTests, copy) {
 
-		DynArray<uint32_t> c;
+		DynamicArray<uint32_t> c;
 
 		EXPECT_TRUE(c.emplace_back(54444));
 
@@ -275,17 +275,17 @@ namespace nyan::util::data
 		EXPECT_NE(c[0], (*d)[0]);
 	}
 	TEST(DynamicArrayTests, constructors) {
-		DynArray<int> a;
-		DynArray<test> t;
-		DynArray<testB> b;
-		DynArray<testC> c;
+		DynamicArray<int> a;
+		DynamicArray<test> t;
+		DynamicArray<testB> b;
+		DynamicArray<testC> c;
 
 		ASSERT_TRUE(a.emplace_back(99));
 
-		DynArray a1{ std::move(a) };
-		DynArray<test> l1{ std::move(t) };
-		DynArray<testB> l2{ std::move(b) };
-		DynArray<testC> l3{ std::move(c) };
+		DynamicArray a1{ std::move(a) };
+		DynamicArray<test> l1{ std::move(t) };
+		DynamicArray<testB> l2{ std::move(b) };
+		DynamicArray<testC> l3{ std::move(c) };
 
 		EXPECT_EQ(a1.size(), 1);
 		EXPECT_EQ(a1[0], 99);
@@ -293,7 +293,7 @@ namespace nyan::util::data
 	}
 
 	TEST(DynamicArrayTests, iterators) {
-		DynArray<uint32_t> a;
+		DynamicArray<uint32_t> a;
 
 		for(auto in : a)
 		{
@@ -325,7 +325,7 @@ namespace nyan::util::data
 
 	}
 	TEST(DynamicArrayTests, resize) {
-		DynArray<uint32_t> a;
+		DynamicArray<uint32_t> a;
 
 		ASSERT_TRUE(a.resize(6));
 
@@ -357,7 +357,7 @@ namespace nyan::util::data
 
 		{
 			auto start = std::chrono::steady_clock::now();
-			DynArray<NonTrivialClass> a;
+			DynamicArray<NonTrivialClass> a;
 			for (uint32_t i = 0; i < iters; i++) {
 				if (!a.push_back(NonTrivialClass(i)))
 					EXPECT_EQ(a[5], 0);
@@ -378,7 +378,7 @@ namespace nyan::util::data
 		}
 		{
 			auto start = std::chrono::steady_clock::now();
-			DynArray<NonTrivialClass> a;
+			DynamicArray<NonTrivialClass> a;
 			for (uint32_t i = 0; i < iters; i++) {
 				if (!a.emplace_back(i))
 					EXPECT_EQ(a[5], 0);
@@ -398,7 +398,7 @@ namespace nyan::util::data
 		}
 
 		{
-			DynArray<NonTrivialClass> a;
+			DynamicArray<NonTrivialClass> a;
 			for (uint32_t i = 0; i < iters; i++) {
 				if (!a.emplace_back(i))
 					EXPECT_EQ(a[5], 0);
@@ -458,7 +458,7 @@ namespace nyan::util::data
 			std::cout << sum << " Vector iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
 		}
 		{
-			DynArray<uint64_t> ab;
+			DynamicArray<uint64_t> ab;
 			for (uint64_t i = 0; i < iters; i++) {
 				if (!ab.push_back(i))
 					EXPECT_EQ(1, 0);

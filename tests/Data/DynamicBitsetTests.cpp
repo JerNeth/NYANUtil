@@ -2,7 +2,7 @@ import NYANData;
 
 #include <gtest/gtest.h>
 
-namespace nyan::util::data
+namespace nyan
 {
     TEST(DynamicBitsetTests, reserve) {
         DynamicBitset dynBitset;

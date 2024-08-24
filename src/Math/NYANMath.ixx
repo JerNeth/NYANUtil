@@ -8,7 +8,7 @@ export import :Quaternion;
 export import :Util;
 export import :Constants;
 
-export namespace nyan::util::math
+export namespace nyan
 {
 	typedef unorm<uint8_t> unorm8;
 	typedef unorm<uint16_t> unorm16;

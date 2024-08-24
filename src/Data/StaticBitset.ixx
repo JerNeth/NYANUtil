@@ -12,7 +12,7 @@ namespace impl {
 	template<class F, class T>
 	concept Callable = requires(F && f, T && t) { f(t); };
 }
-export namespace nyan::util::data
+export namespace nyan
 {
 	template<size_t bitSize, typename T = size_t> // typename for indices e.g. enums
 	class bitset {
