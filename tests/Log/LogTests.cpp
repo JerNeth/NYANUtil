@@ -146,4 +146,13 @@ namespace nyan
         std::string output = testing::internal::GetCapturedStdout();
         EXPECT_TRUE(!output.empty());
     }
+    TEST(Log, LogStacktrace) {
+
+        testing::internal::CaptureStdout();
+        {
+            log::warning().stacktrace();
+        }
+        std::string output = testing::internal::GetCapturedStdout();
+        EXPECT_TRUE(!output.empty());
+    }
 }
