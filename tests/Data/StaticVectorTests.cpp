@@ -1,6 +1,7 @@
 import NYANData;
 
 #include <gtest/gtest.h>
+#include <expected>
 
 namespace nyan
 {
@@ -190,16 +191,35 @@ namespace nyan
     }
     TEST(StaticVectorTests, DefaultConstruct) {
 
-        StaticVector<uint32_t, 4> s { 4u };
+        StaticVector<uint32_t, 4> s{ 4u };
         std::array<std::byte, sizeof(s)> a;
 
 
-        auto* ptr = std::construct_at(reinterpret_cast<decltype(&s)>(a.data()), 4);
+        auto* ptr = std::construct_at(reinterpret_cast<decltype(&s)>(a.data()), 3);
 
         ptr->back() = 5;
 
         auto* ptr2 = std::construct_at(reinterpret_cast<decltype(&s)>(a.data()), 3);
-        
-        EXPECT_EQ(ptr->operator[](3), 5); //Probably UB, and out of bounds access but this tests intended behaviour and is not a valid use case
+
+        EXPECT_EQ(ptr2->size(), 3);
+
+        EXPECT_EQ(ptr2->operator[](0), 0); 
+        EXPECT_EQ(ptr2->operator[](1), 0); 
+        EXPECT_EQ(ptr2->operator[](2), 0); 
+    }
+    TEST(StaticVectorTests, TryPushBack) {
+
+        StaticVector<uint32_t, 4> s{};
+
+        std::expected<uint32_t, uint64_t> a{ 0ul };
+        std::expected<uint32_t, uint64_t> b = std::unexpected{ 3ull };
+
+        auto ret = s.try_push_back(std::move(a));
+        EXPECT_TRUE(ret.has_value());
+
+        auto ret2 = s.try_push_back(std::move(b));
+        EXPECT_FALSE(ret2.has_value());
+        EXPECT_EQ(ret2.error(), 3ull);
+
     }
 }

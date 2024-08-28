@@ -4,7 +4,7 @@ module;
 #include <format>
 #include <iostream>
 #include <source_location>
-#if __cpp_lib_stacktrace == 202011L
+#if __cpp_lib_stacktrace >= 202011L
 #include <stacktrace>
 #endif
 #include <string>
@@ -420,7 +420,7 @@ export namespace nyan
             });
             return std::move(*this);
         }
-#if __cpp_lib_stacktrace == 202011L
+#if __cpp_lib_stacktrace >= 202011L
         Logger& stacktrace(const std::stacktrace  currentStacktrace = std::stacktrace::current()) & noexcept {
             filter([&]() {
                 for (const auto& trace : currentStacktrace)

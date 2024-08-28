@@ -4,6 +4,9 @@ module;
 #include <bit>
 #include <cassert>
 #include <cstdlib>
+#if __cpp_lib_expected >= 202202L
+#include <expected>
+#endif
 #include <vector>
 
 export module NYANData:StaticVector;
@@ -152,10 +155,10 @@ export namespace nyan
 		template<typename = std::enable_if_t<std::is_nothrow_default_constructible_v<value_type>> >
 		constexpr StaticVector(size_type count) noexcept
 		{
-			assert(Capacity > count);
+			assert(Capacity >= count);
 
 			for(m_size = 0; m_size < std::min(static_cast<decltype(Capacity)>(count), Capacity); ++m_size)
-				std::construct_at(&operator[](m_size));
+				std::construct_at(data()+ m_size);
 		}
 
 		template<typename = 
@@ -269,6 +272,7 @@ export namespace nyan
 			return true;
 		}
 
+
 		template<typename = std::enable_if_t<std::is_copy_constructible_v<value_type> || (std::is_copy_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
 		[[nodiscard]] constexpr bool push_back(const value_type& value) noexcept
 		{
@@ -286,6 +290,29 @@ export namespace nyan
 			return true;
 		}
 
+#if __cpp_lib_expected >= 202202L
+		template<typename Error, typename = std::enable_if_t<(std::is_move_constructible_v<value_type> || (std::is_move_assignable_v<value_type> && std::is_default_constructible_v<value_type>))  &&
+				std::is_nothrow_move_constructible_v<Error>
+			>>
+		[[nodiscard]] constexpr std::expected<bool, Error> try_push_back(std::expected<value_type, Error>&& value) noexcept
+		{
+			if (m_size >= Capacity)
+				return false;
+
+			if (!value.has_value())
+				return std::unexpected{ std::move(value.error())};
+
+			if constexpr (std::is_trivially_move_constructible_v<value_type>)
+				std::memcpy(&operator[](m_size++), &value.value(), sizeof(value_type));
+			else if constexpr (std::is_move_constructible_v<value_type>)
+				std::construct_at(&operator[](m_size++), std::move(value.value()));
+			else
+				*std::construct_at(&operator[](m_size++)) = std::move(value.value());
+
+			return true;
+		}
+#endif
+
 		template<class... Args >
 		[[nodiscard]] constexpr bool emplace_back(Args&&... args) noexcept
 		{
@@ -296,6 +323,7 @@ export namespace nyan
 			std::construct_at(&operator[](m_size++), std::forward<Args>(args)...);
 			return true;
 		}
+
 
 		[[nodiscard]] constexpr size_type capacity() const noexcept
 		{
