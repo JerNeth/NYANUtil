@@ -9,7 +9,7 @@ module;
 #include <vector>
 
 export module NYANData:DynamicArray;
-import :CommonConcepts;
+import :Common;
 
 export namespace nyan
 {

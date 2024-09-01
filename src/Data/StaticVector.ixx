@@ -10,7 +10,7 @@ module;
 #include <vector>
 
 export module NYANData:StaticVector;
-import :CommonConcepts;
+import :Common;
 
 export namespace nyan
 {

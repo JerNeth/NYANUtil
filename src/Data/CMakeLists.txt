@@ -4,7 +4,7 @@ target_sources(Data
 	PRIVATE
 	PUBLIC
 		FILE_SET cxx_modules TYPE CXX_MODULES FILES
-		CommonConcepts.ixx
+		Common.ixx
 		DynamicArray.ixx
 		DynamicBitset.ixx
 		Hash.ixx

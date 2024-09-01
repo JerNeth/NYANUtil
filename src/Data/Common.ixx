@@ -2,7 +2,7 @@ module;
 
 #include <type_traits>
 
-export module NYANData:CommonConcepts;
+export module NYANData:Common;
 
 export namespace nyan
 {
@@ -13,4 +13,13 @@ export namespace nyan
 		(!std::is_copy_assignable_v<T> || std::is_nothrow_copy_assignable_v<T>) &&
 		(!std::is_move_assignable_v<T> || std::is_nothrow_move_assignable_v<T>) &&
 		std::is_nothrow_destructible_v<T>;
+
+	struct Ignore { 
+		template <typename T>
+		constexpr const Ignore& operator=(const T&) const noexcept {
+			return *this;
+		}
+	};
+
+	constexpr Ignore ignore{};
 }
