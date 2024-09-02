@@ -147,6 +147,24 @@ export namespace nyan
 		};
 	public:
 		constexpr StaticVector() noexcept = default;
+
+
+		template<typename = 
+			std::enable_if_t<std::is_nothrow_copy_constructible_v<value_type>
+			|| (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)> >
+		constexpr StaticVector(std::initializer_list<T> init) noexcept 
+		{
+			assert(init.size() <= Capacity);
+
+			if constexpr (std::is_trivially_copyable_v<value_type>)
+				std::memcpy(m_data.data(), std::data(init), (m_size = std::min(init.size(), Capacity)) * sizeof(value_type));
+			else if constexpr (std::is_nothrow_copy_constructible_v<value_type>)
+				for (auto x : init)
+					std::construct_at(reinterpret_cast<value_type*>(data.data()) + m_size++, x);
+			else
+				for (auto x : init)
+					*std::construct_at(reinterpret_cast<value_type*>(data.data()) + m_size++) = x;
+		}
 		constexpr ~StaticVector() noexcept
 		{
 			clear();

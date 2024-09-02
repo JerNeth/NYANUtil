@@ -222,4 +222,17 @@ namespace nyan
         EXPECT_EQ(ret2.error(), 3ull);
 
     }
+    TEST(StaticVectorTests, InitializerList) {
+
+        StaticVector<uint32_t, 4> s{ {3, 4 } };
+
+        EXPECT_EQ(s[0], 3ull);
+        EXPECT_EQ(s[1], 4ull);
+
+        StaticVector<uint32_t, 2> t{ {3, 4 } };
+
+        EXPECT_EQ(t[0], 3ull);
+        EXPECT_EQ(t[1], 4ull);
+
+    }
 }
