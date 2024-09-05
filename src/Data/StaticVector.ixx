@@ -160,10 +160,10 @@ export namespace nyan
 				std::memcpy(m_data.data(), std::data(init), (m_size = std::min(init.size(), Capacity)) * sizeof(value_type));
 			else if constexpr (std::is_nothrow_copy_constructible_v<value_type>)
 				for (auto x : init)
-					std::construct_at(reinterpret_cast<value_type*>(data.data()) + m_size++, x);
+					std::construct_at(reinterpret_cast<value_type*>(m_data.data()) + m_size++, x);
 			else
 				for (auto x : init)
-					*std::construct_at(reinterpret_cast<value_type*>(data.data()) + m_size++) = x;
+					*std::construct_at(reinterpret_cast<value_type*>(m_data.data()) + m_size++) = x;
 		}
 		constexpr ~StaticVector() noexcept
 		{

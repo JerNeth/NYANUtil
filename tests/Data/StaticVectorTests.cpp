@@ -235,4 +235,49 @@ namespace nyan
         EXPECT_EQ(t[1], 4ull);
 
     }
+    TEST(StaticVectorTests, NonTrivialMove) {
+        struct T {
+            T() noexcept {
+                data = 0;
+            }
+            T(uint32_t d) noexcept {
+                data = d;
+            }
+            T(const T& t) noexcept {
+                data = t.data;
+            }
+            T(T&& t) noexcept {
+                data = t.data;
+                t.data = 100923;
+            }
+            ~T() noexcept {
+                data = 9999;
+            }
+            T& operator=(const T& t) noexcept
+            {
+                data = t.data;
+                return *this;
+            }
+            T& operator=(T&& t) noexcept
+            {
+                data = t.data;
+                t.data = 100924;
+                return *this;
+            }
+            uint32_t data;
+        };
+        StaticVector<T, 4> s{ {3, 4 } };
+
+        EXPECT_EQ(s[0].data, 3ull);
+        EXPECT_EQ(s[1].data, 4ull);
+
+        auto t{std::move(s)};
+
+        EXPECT_EQ(t[0].data, 3ull);
+        EXPECT_EQ(t[1].data, 4ull);
+
+        //EXPECT_EQ(s[0].data, 100923ull);
+        //EXPECT_EQ(s[1].data, 100923ull);
+
+    }
 }
