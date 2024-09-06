@@ -410,6 +410,15 @@ export namespace nyan
 			return Iterator(data() + m_size);
 		}
 
+		[[nodiscard]] constexpr Const_Iterator begin() const noexcept
+		{
+			return Const_Iterator(data());
+		}
+		[[nodiscard]] constexpr Const_Iterator end() const noexcept
+		{
+			return Const_Iterator(data() + m_size);
+		}
+
 		[[nodiscard]] constexpr Const_Iterator cbegin() const noexcept
 		{
 			return Const_Iterator(data());

@@ -11,7 +11,7 @@ target_sources(Data
 		NYANData.ixx
 		StaticBitset.ixx
 		StaticVector.ixx
-)
+ "Handle.ixx")
 	
 target_compile_features(Data PUBLIC cxx_std_23)
 
