@@ -424,7 +424,7 @@ export namespace nyan
 		bool grow(const size_type newCapacity) noexcept
 		{
 
-			if (m_capacity > newCapacity)
+			if (m_capacity >= newCapacity)
 				return true;
 
 			static_assert(!(sizeof(value_type) % alignof(value_type)));

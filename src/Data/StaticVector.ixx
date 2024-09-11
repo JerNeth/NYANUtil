@@ -246,12 +246,13 @@ export namespace nyan
 		template<typename = std::enable_if_t<std::is_nothrow_move_constructible_v<value_type>> >
 		constexpr StaticVector& operator=(StaticVector&& other) noexcept
 		{
+			using std::swap;
 			if (this != std::addressof(other))
 			{
 
 				if constexpr (std::is_trivially_move_constructible_v<value_type>) {
-					std::swap(m_data, other.m_data);
-					std::swap(m_size, other.m_size);
+					swap(m_data, other.m_data);
+					swap(m_size, other.m_size);
 				}
 				else {
 					clear();
