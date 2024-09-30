@@ -402,7 +402,9 @@ export namespace nyan
         template<typename ...Args>
         constexpr Logger& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)& noexcept {
             filter([&]() {
-                output(std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), std::vformat(view, std::make_format_args(args...))));
+                auto col = impl::find_closest_color(color);
+                auto str = std::vformat(view, std::make_format_args(args...));
+                output(std::vformat("\033[38;5;{}m{}\033[0m", std::make_format_args(col, str)));
                 });
             return *this;
         }
@@ -416,7 +418,9 @@ export namespace nyan
         template<typename ...Args>
         constexpr Logger&& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)&& noexcept {
             filter([&]() {
-                output(std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), std::vformat(view, std::make_format_args(args...))));
+                auto col = impl::find_closest_color(color);
+                auto str = std::vformat(view, std::make_format_args(args...));
+                output(std::vformat("\033[38;5;{}m{}\033[0m", std::make_format_args(col, str)));
             });
             return std::move(*this);
         }
