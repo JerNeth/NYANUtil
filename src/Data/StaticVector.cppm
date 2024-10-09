@@ -249,7 +249,7 @@ export namespace nyan
 				else {
 					clear();
 					for (size_type i = 0; i < other.m_size; ++i)
-						*std::construct_at(&operator[](m_size++), std::move(other[i]));
+						nyan::ignore = std::construct_at(&operator[](m_size++), std::move(other[i]));
 					other.m_size = 0;
 				}
 			}
