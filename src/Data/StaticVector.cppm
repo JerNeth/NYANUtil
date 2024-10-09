@@ -65,16 +65,16 @@ export namespace nyan
 				return *(*this + b);
 			}
 
-			static constexpr friend bool operator== (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr == b.m_ptr; };
-			static constexpr friend bool operator!= (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr != b.m_ptr; };
-			static constexpr friend bool operator<(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr < b.m_ptr; };
-			static constexpr friend bool operator>(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr > b.m_ptr; };
-			static constexpr friend bool operator<=(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr <= b.m_ptr; };
-			static constexpr friend bool operator>=(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr >= b.m_ptr; };
-			static constexpr friend difference_type operator-(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr - b.m_ptr; };
-			static constexpr friend Iterator operator-(const Iterator& a, size_type b) noexcept { return a.m_ptr - b; };
-			static constexpr friend Iterator operator+(const Iterator& a, size_type b) noexcept { return a.m_ptr + m_ptr; };
-			static constexpr friend Iterator operator+(size_type b, const Iterator& a) noexcept { return a.m_ptr + m_ptr; };
+			constexpr friend bool operator== (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr == b.m_ptr; };
+			constexpr friend bool operator!= (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr != b.m_ptr; };
+			constexpr friend bool operator<(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr < b.m_ptr; };
+			constexpr friend bool operator>(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr > b.m_ptr; };
+			constexpr friend bool operator<=(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr <= b.m_ptr; };
+			constexpr friend bool operator>=(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr >= b.m_ptr; };
+			constexpr friend difference_type operator-(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr - b.m_ptr; };
+			constexpr friend Iterator operator-(const Iterator& a, size_type b) noexcept { return a.m_ptr - b; };
+			constexpr friend Iterator operator+(const Iterator& a, size_type b) noexcept { return a.m_ptr + b; };
+			constexpr friend Iterator operator+(size_type b, const Iterator& a) noexcept { return a.m_ptr + b; };
 
 			constexpr Iterator() noexcept = default;
 			constexpr Iterator(const pointer p) noexcept :
@@ -123,16 +123,16 @@ export namespace nyan
 			}
 
 
-			static constexpr friend bool operator== (const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr == b.m_ptr; };
-			static constexpr friend bool operator!= (const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr != b.m_ptr; };
-			static constexpr friend bool operator<(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr < b.m_ptr; };
-			static constexpr friend bool operator>(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr > b.m_ptr; };
-			static constexpr friend bool operator<=(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr <= b.m_ptr; };
-			static constexpr friend bool operator>=(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr >= b.m_ptr; };
-			static constexpr friend difference_type operator-(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr - b.m_ptr; };
-			static constexpr friend Const_Iterator operator-(const Const_Iterator& a, size_type b) noexcept { return a.m_ptr - b; };
-			static constexpr friend Const_Iterator operator+(const Const_Iterator& a, size_type b) noexcept { return a.m_ptr + b; };
-			static constexpr friend Const_Iterator operator+(size_type b, const Const_Iterator& a) noexcept { return a.m_ptr + b; };
+			constexpr friend bool operator== (const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr == b.m_ptr; };
+			constexpr friend bool operator!= (const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr != b.m_ptr; };
+			constexpr friend bool operator<(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr < b.m_ptr; };
+			constexpr friend bool operator>(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr > b.m_ptr; };
+			constexpr friend bool operator<=(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr <= b.m_ptr; };
+			constexpr friend bool operator>=(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr >= b.m_ptr; };
+			constexpr friend difference_type operator-(const Const_Iterator& a, const Const_Iterator& b) noexcept { return a.m_ptr - b.m_ptr; };
+			constexpr friend Const_Iterator operator-(const Const_Iterator& a, size_type b) noexcept { return a.m_ptr - b; };
+			constexpr friend Const_Iterator operator+(const Const_Iterator& a, size_type b) noexcept { return a.m_ptr + b; };
+			constexpr friend Const_Iterator operator+(size_type b, const Const_Iterator& a) noexcept { return a.m_ptr + b; };
 
 			constexpr Const_Iterator() noexcept = default;
 			constexpr Const_Iterator(const const_pointer p) noexcept :
@@ -149,10 +149,8 @@ export namespace nyan
 		constexpr StaticVector() noexcept = default;
 
 
-		template<typename = 
-			std::enable_if_t<std::is_nothrow_copy_constructible_v<value_type>
-			|| (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)> >
-		constexpr StaticVector(std::initializer_list<T> init) noexcept 
+		constexpr StaticVector(std::initializer_list<T> init) noexcept requires std::is_nothrow_copy_constructible_v<value_type>
+			|| (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)
 		{
 			assert(init.size() <= Capacity);
 
@@ -170,8 +168,7 @@ export namespace nyan
 			clear();
 		}
 
-		template<typename = std::enable_if_t<std::is_nothrow_default_constructible_v<value_type>> >
-		constexpr StaticVector(size_type count) noexcept
+		constexpr StaticVector(size_type count) noexcept requires std::is_nothrow_default_constructible_v<value_type>
 		{
 			assert(Capacity >= count);
 
@@ -179,10 +176,8 @@ export namespace nyan
 				std::construct_at(data()+ m_size);
 		}
 
-		template<typename = 
-			std::enable_if_t<std::is_nothrow_copy_constructible_v<value_type> 
-			|| (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)>>
-		[[nodiscard]] constexpr StaticVector copy() noexcept
+		[[nodiscard]] constexpr StaticVector copy() noexcept requires std::is_nothrow_copy_constructible_v<value_type>
+			|| (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)
 		{
 			if (!m_size)
 				return StaticVector{};
@@ -204,8 +199,7 @@ export namespace nyan
 			return StaticVector{ data, m_size};
 		}
 
-		template<typename = std::enable_if_t<std::is_nothrow_move_constructible_v<value_type>> >
-		constexpr StaticVector(StaticVector&& other) noexcept
+		constexpr StaticVector(StaticVector&& other) noexcept requires std::is_nothrow_move_constructible_v<value_type>
 		{
 			if constexpr (!std::is_trivially_move_constructible_v<value_type>) {
 				for (size_t i = 0; i < other.m_size; ++i) {
@@ -220,8 +214,7 @@ export namespace nyan
 
 		}
 
-		template<typename = std::enable_if_t<std::is_nothrow_copy_constructible_v<value_type> || (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)>>
-		StaticVector& operator=(const StaticVector& other) noexcept 
+		StaticVector& operator=(const StaticVector& other) noexcept requires std::is_nothrow_copy_constructible_v<value_type> || (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)
 		{
 			if (this != std::addressof(other)) 
 			{
@@ -233,18 +226,17 @@ export namespace nyan
 				if constexpr (std::is_trivially_copyable_v<value_type>)
 					std::memcpy(m_data.data(), other.m_data.data(), dataSize);
 				else if constexpr (std::is_nothrow_copy_constructible_v<value_type>)
-					for (size_type i = 0; i < other.m_size; ++i)
-						std::construct_at(reinterpret_cast<value_type*>(m_data.data()) + i, other[i]);
+					for (m_size = 0; m_size < other.m_size; ++m_size)
+						std::construct_at(reinterpret_cast<value_type*>(m_data.data()) + m_size, other[m_size]);
 				else
-					for (size_type i = 0; i < other.m_size; ++i)
-						*std::construct_at(reinterpret_cast<value_type*>(m_data.data()) + i) = other[i];
+					for (m_size = 0; m_size < other.m_size; ++m_size)
+						*std::construct_at(reinterpret_cast<value_type*>(m_data.data()) + m_size) = other[m_size];
 				
 			}
 			return *this;
 		}
 
-		template<typename = std::enable_if_t<std::is_nothrow_move_constructible_v<value_type>> >
-		constexpr StaticVector& operator=(StaticVector&& other) noexcept
+		constexpr StaticVector& operator=(StaticVector&& other) noexcept requires std::is_nothrow_move_constructible_v<value_type>
 		{
 			using std::swap;
 			if (this != std::addressof(other))
@@ -275,8 +267,7 @@ export namespace nyan
 
 		}
 
-		template<typename = std::enable_if_t<std::is_move_constructible_v<value_type> || (std::is_move_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
-		[[nodiscard]] constexpr bool push_back(value_type&& value) noexcept
+		[[nodiscard]] constexpr bool push_back(value_type&& value) noexcept requires std::is_move_constructible_v<value_type> || (std::is_move_assignable_v<value_type> && std::is_default_constructible_v<value_type>)
 		{
 			if (m_size >= Capacity)
 				return false;
@@ -292,8 +283,7 @@ export namespace nyan
 		}
 
 
-		template<typename = std::enable_if_t<std::is_copy_constructible_v<value_type> || (std::is_copy_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
-		[[nodiscard]] constexpr bool push_back(const value_type& value) noexcept
+		[[nodiscard]] constexpr bool push_back(const value_type& value) noexcept requires std::is_copy_constructible_v<value_type> || (std::is_copy_assignable_v<value_type> && std::is_default_constructible_v<value_type>)
 		{
 			if (m_size >= Capacity)
 				return false;
@@ -310,10 +300,9 @@ export namespace nyan
 		}
 
 #if __cpp_lib_expected >= 202202L
-		template<typename Error, typename = std::enable_if_t<(std::is_move_constructible_v<value_type> || (std::is_move_assignable_v<value_type> && std::is_default_constructible_v<value_type>))  &&
-				std::is_nothrow_move_constructible_v<Error>
-			>>
-		[[nodiscard]] constexpr std::expected<bool, Error> try_push_back(std::expected<value_type, Error>&& value) noexcept
+		template<typename Error>
+		[[nodiscard]] constexpr std::expected<bool, Error> try_push_back(std::expected<value_type, Error>&& value) noexcept requires (std::is_move_constructible_v<value_type> || (std::is_move_assignable_v<value_type> && std::is_default_constructible_v<value_type>)) &&
+			std::is_nothrow_move_constructible_v<Error>
 		{
 			if (m_size >= Capacity)
 				return false;

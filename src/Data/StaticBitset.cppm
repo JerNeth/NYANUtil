@@ -236,29 +236,29 @@ export namespace nyan
 				return true;
 			return memcmp(m_data.data(), rhs.m_data.data(), typeSize * sizeof(bitType)) == 0;
 		}
-		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator!=(const bitset<bitSize, T>& lhs, const bitset<bitSize, T>& rhs) noexcept {
-			return !(lhs == rhs);
+		constexpr bitset<bitSize, T> operator!=(const bitset<bitSize, T>& rhs) noexcept {
+			return !(*this == rhs);
 		}
-		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator^(const bitset<bitSize, T>& lhs, const bitset<bitSize, T>& rhs) noexcept {
-			bitset<bitSize, T> ret = lhs;
+
+		constexpr bitset<bitSize, T> operator^(const bitset<bitSize, T>& rhs) noexcept {
+			bitset<bitSize, T> ret = *this;
 			return ret ^= rhs;
 		}
-		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator&(const bitset<bitSize, T>& lhs, const bitset<bitSize, T>& rhs) noexcept {
-			bitset<bitSize, T> ret = lhs;
+
+		constexpr bitset<bitSize, T> operator&(const bitset<bitSize, T>& rhs) noexcept {
+			bitset<bitSize, T> ret = *this;
 			return ret &= rhs;
 		}
-		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator|(bitset<bitSize, T> lhs, const bitset<bitSize, T>& rhs) noexcept {
-			return lhs |= rhs;
+
+		constexpr bitset<bitSize, T> operator|(const bitset<bitSize, T>& rhs) noexcept {
+			bitset<bitSize, T> ret = *this;
+			return ret |= rhs;
 		}
-		template<size_t bitSize, typename T>
-		friend constexpr bitset<bitSize, T> operator|(const bitset<bitSize, T>& lhs, const T& rhs) noexcept {
+
+		constexpr bitset<bitSize, T> operator|(const T& rhs) noexcept {
 			bitset<bitSize, T> ret;
 			ret.set(rhs);
-			return ret |= lhs;
+			return ret |= *this;
 		}
 	private:
 		std::array<bitType, typeSize> m_data{};

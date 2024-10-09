@@ -4,7 +4,7 @@ target_sources(Log
 	PRIVATE
 	PUBLIC
 		FILE_SET cxx_modules TYPE CXX_MODULES FILES
-		NYANLog.ixx)
+		NYANLog.cppm)
 	
 target_compile_features(Log PUBLIC cxx_std_23)
 

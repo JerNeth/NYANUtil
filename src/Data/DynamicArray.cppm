@@ -1,6 +1,7 @@
 module;
 
 #include <array>
+#include <concepts>
 #include <expected>
 #include <bit>
 #include <cassert>
@@ -69,8 +70,8 @@ export namespace nyan
 			friend bool operator>=(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr >= b.m_ptr; };
 			friend difference_type operator-(const Iterator& a, const Iterator& b) noexcept { return a.m_ptr - b.m_ptr; };
 			friend Iterator operator-(const Iterator& a, size_type b) noexcept { return a.m_ptr - b; };
-			friend Iterator operator+(const Iterator& a, size_type b) noexcept { return a.m_ptr + m_ptr; };
-			friend Iterator operator+(size_type b, const Iterator& a) noexcept { return a.m_ptr + m_ptr; };
+			friend Iterator operator+(const Iterator& a, size_type b) noexcept { return a.m_ptr + b; };
+			friend Iterator operator+(size_type b, const Iterator& a) noexcept { return a.m_ptr + b; };
 
 			Iterator() noexcept = default;
 			Iterator(const pointer p) noexcept :
@@ -157,8 +158,7 @@ export namespace nyan
 		//Implicit copys are evil
 		DynamicArray(const DynamicArray& other) = delete;
 
-		template<typename = std::enable_if_t<std::is_copy_constructible_v<value_type> || (std::is_copy_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
-		[[nodiscard]] std::optional<DynamicArray> copy() noexcept
+		[[nodiscard]] std::optional<DynamicArray> copy() noexcept requires std::copy_constructible< value_type> || std::is_copy_assignable_v< value_type> && std::is_default_constructible_v<value_type>
 		{
 			if(!m_data)
 				return DynamicArray{ nullptr, 0, 0 };
@@ -219,8 +219,7 @@ export namespace nyan
 			
 		}
 
-		template<typename = std::enable_if_t<std::is_move_constructible_v<value_type> || (std::is_move_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
-		[[nodiscard]] bool push_back(value_type&& value) noexcept
+		[[nodiscard]] bool push_back(value_type&& value) noexcept requires std::move_constructible< value_type> || std::is_move_assignable_v< value_type> && std::is_default_constructible_v<value_type>
 		{
 			if (m_size >= m_capacity)
 				if (!grow(calc_new_capacity()))
@@ -236,8 +235,7 @@ export namespace nyan
 			return true;
 		}
 
-		template<typename = std::enable_if_t<std::is_copy_constructible_v<value_type> || (std::is_copy_assignable_v<value_type> && std::is_default_constructible_v<value_type>)>>
-		[[nodiscard]] bool push_back(const value_type& value) noexcept
+		[[nodiscard]] bool push_back(const value_type& value) noexcept requires std::copy_constructible< value_type> || std::is_copy_assignable_v< value_type> && std::is_default_constructible_v<value_type>
 		{
 			if (m_size >= m_capacity)
 				if (!grow(calc_new_capacity()))
@@ -272,8 +270,7 @@ export namespace nyan
 		}
 
 
-		template<typename = std::enable_if_t<std::is_default_constructible_v<value_type>>>
-		[[nodiscard]] bool resize(const size_type count) noexcept
+		[[nodiscard]] bool resize(const size_type count) noexcept requires std::is_default_constructible_v< value_type>
 		{
 			if (m_size == count)
 				return true;
@@ -296,8 +293,7 @@ export namespace nyan
 			return true;
 		}
 
-		template<typename = std::enable_if_t<std::is_copy_constructible_v<value_type>>>
-		[[nodiscard]] bool resize(const size_type count, const value_type& value) noexcept
+		[[nodiscard]] bool resize(const size_type count, const value_type& value) noexcept requires std::copy_constructible< value_type>
 		{
 			if (m_size == count)
 				return true;

@@ -4,14 +4,14 @@ target_sources(Data
 	PRIVATE
 	PUBLIC
 		FILE_SET cxx_modules TYPE CXX_MODULES FILES
-		Common.ixx
-		DynamicArray.ixx
-		DynamicBitset.ixx
-		Handle.ixx
-		Hash.ixx
-		NYANData.ixx
-		StaticBitset.ixx
-		StaticVector.ixx
+		Common.cppm
+		DynamicArray.cppm
+		DynamicBitset.cppm
+		Handle.cppm
+		Hash.cppm
+		NYANData.cppm
+		StaticBitset.cppm
+		StaticVector.cppm
 )
 	
 target_compile_features(Data PUBLIC cxx_std_23)
