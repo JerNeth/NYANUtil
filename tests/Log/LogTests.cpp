@@ -32,7 +32,7 @@ namespace nyan
             testing::internal::CaptureStdout();
             std::string inputInfo = "Test";
             {
-                log::info_message(inputInfo);
+                log::info().message(inputInfo);
             }
             std::string output = testing::internal::GetCapturedStdout();
             EXPECT_EQ(inputInfo + "\n", output);

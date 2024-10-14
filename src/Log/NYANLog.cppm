@@ -541,47 +541,7 @@ export namespace nyan
         {
             return {};
         }
-        constexpr auto verbose_message(const std::string_view message) noexcept
-        {
-            return verbose().message(message);
-        }
-        constexpr auto warning_message(const std::string_view message) noexcept
-        {
-            return warning().message(message);
-        }
-        constexpr auto info_message(const std::string_view message) noexcept
-        {
-            return info().message(message);
-        }
-        constexpr auto error_message(const std::string_view message) noexcept
-        {
-            return error().message(message);
-        }
-        constexpr auto critical_message(const std::string_view message) noexcept
-        {
-            return critical().message(message);
-        }
 
-        constexpr auto verbose_message(const std::array<uint8_t, 3>& color, const std::string_view message) noexcept
-        {
-            return verbose().message(color, message);
-        }
-        constexpr auto warning_message(const std::array<uint8_t, 3>& color, const std::string_view message) noexcept
-        {
-            return warning().message(color, message);
-        } 
-        constexpr auto info_message(const std::array<uint8_t, 3>& color, const std::string_view message) noexcept
-        {
-            return info().message(color, message);
-        }
-        constexpr auto error_message(const std::array<uint8_t, 3>& color, const std::string_view message) noexcept
-        {
-            return error().message(color, message);
-        }
-        constexpr auto critical_message(const std::array<uint8_t, 3>& color, const std::string_view message) noexcept
-        {
-            return critical().message(color, message);
-        }
         constexpr auto flush_verbose() noexcept {
 
         }
