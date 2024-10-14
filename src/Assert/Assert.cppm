@@ -180,11 +180,11 @@ export namespace nyan
 			//	return T{};
 			//}
 		};
-		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = assertionLoggingBehavior>
-		constexpr auto AssertionsEnabled = Assert< AssertionLevel::Enabled, exitMode, assertionLogMode>{};
+		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = assertionLoggingBehavior, AssertionDebugMode debugBehavior = assertionDebugBehavior>
+		constexpr auto AssertionsEnabled = Assert< AssertionLevel::Enabled, exitMode, assertionLogMode, debugBehavior>{};
 
-		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = assertionLoggingBehavior>
-		constexpr auto AssertionsDisabled = Assert< AssertionLevel::Disabled, exitMode, assertionLogMode>{};
+		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = assertionLoggingBehavior, AssertionDebugMode debugBehavior = assertionDebugBehavior>
+		constexpr auto AssertionsDisabled = Assert< AssertionLevel::Disabled, exitMode, assertionLogMode, debugBehavior>{};
 
 		constexpr auto defaultAssert = Assert<assertionLevel, assertionExitMode, assertionLoggingBehavior, assertionDebugBehavior>{};
 
