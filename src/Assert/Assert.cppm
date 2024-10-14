@@ -109,24 +109,24 @@ export namespace nyan
 #endif
 #endif
 
-		template<AssertionLevel level = assertionLevel, AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = loggingBehavior>
+		template<size_t level = static_cast<size_t>(assertionLevel), size_t exitMode = static_cast<size_t>(assertionExitMode), size_t assertionLogMode = static_cast<size_t>(loggingBehavior)>
 		struct Assert {
 
 
-			constexpr void operator()([[maybe_unused]] impl::Assertable<(level != AssertionLevel::Disabled)> condition,
+			constexpr void operator()([[maybe_unused]] impl::Assertable<(level != static_cast<size_t>(AssertionLevel::Disabled))> condition,
 				[[maybe_unused]] std::string_view msg = "",
 				[[maybe_unused]] const std::source_location& location = std::source_location::current()) const noexcept
 			{
-				if constexpr (level == AssertionLevel::Disabled)
+				if constexpr (level == static_cast<size_t>(AssertionLevel::Disabled))
 					return;
 				if (condition)
 					return;
 
-				if constexpr (assertionLogMode == AssertionLogMode::MessageOnly)
+				if constexpr (assertionLogMode == static_cast<size_t>(AssertionLogMode::MessageOnly))
 					nyan::log::error().message(msg);
-				else if constexpr (assertionLogMode == AssertionLogMode::SourceLocation)
+				else if constexpr (assertionLogMode == static_cast<size_t>(AssertionLogMode::SourceLocation))
 					nyan::log::error().message(msg).message("\n").location(location);
-				else if constexpr (assertionLogMode == AssertionLogMode::StackTrace)
+				else if constexpr (assertionLogMode == static_cast<size_t>(AssertionLogMode::StackTrace))
 //#ifdef USE_STACKTRACE
 					nyan::log::error().message(msg).message("\n").stacktrace(std::stacktrace::current(1));
 //#else
@@ -134,11 +134,11 @@ export namespace nyan
 //#endif
 
 
-				if constexpr (exitMode == AssertionExitMode::QuickExit)
+				if constexpr (exitMode == static_cast<size_t>(AssertionExitMode::QuickExit))
 					std::quick_exit(1);
-				else if constexpr (exitMode == AssertionExitMode::Exit)
+				else if constexpr (exitMode == static_cast<size_t>(AssertionExitMode::Exit))
 					std::exit(1);
-				else if constexpr (exitMode == AssertionExitMode::Abort)
+				else if constexpr (exitMode == static_cast<size_t>(AssertionExitMode::Abort))
 					std::abort();
 			}
 
