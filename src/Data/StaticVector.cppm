@@ -2,15 +2,22 @@ module;
 
 #include <array>
 #include <bit>
-#include <cassert>
 #include <cstdlib>
 #if __cpp_lib_expected >= 202202L
 #include <expected>
 #endif
+#include <string_view>
 #include <vector>
 
 export module NYANData:StaticVector;
+import NYANAssert;
 import :Common;
+
+#ifdef NDEBUG
+constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Disabled, nyan::assert::AssertionExitMode::Disabled, nyan::assert::AssertionLogMode::Disabled>{};
+#else
+constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Enabled, nyan::assert::AssertionExitMode::Abort, nyan::assert::AssertionLogMode::StackTrace>{};
+#endif
 
 export namespace nyan
 {
@@ -152,7 +159,7 @@ export namespace nyan
 		constexpr StaticVector(std::initializer_list<T> init) noexcept requires std::is_nothrow_copy_constructible_v<value_type>
 			|| (std::is_nothrow_copy_assignable_v<value_type> && std::is_nothrow_default_constructible_v<value_type>)
 		{
-			assert(init.size() <= Capacity);
+			::assert(init.size() <= Capacity);
 
 			if constexpr (std::is_trivially_copyable_v<value_type>)
 				std::memcpy(m_data.data(), std::data(init), (m_size = std::min(init.size(), Capacity)) * sizeof(value_type));
@@ -170,7 +177,7 @@ export namespace nyan
 
 		constexpr StaticVector(size_type count) noexcept requires std::is_nothrow_default_constructible_v<value_type>
 		{
-			assert(Capacity >= count);
+			::assert(Capacity >= count);
 
 			for(m_size = 0; m_size < std::min(static_cast<decltype(Capacity)>(count), Capacity); ++m_size)
 				std::construct_at(data()+ m_size);
@@ -204,7 +211,7 @@ export namespace nyan
 			if constexpr (!std::is_trivially_move_constructible_v<value_type>) {
 				for (size_t i = 0; i < other.m_size; ++i) {
 					auto res = emplace_back(std::move(other[i]));
-					assert(res);
+					::assert(res);
 				}
 			}
 			else {
@@ -351,13 +358,13 @@ export namespace nyan
 
 		[[nodiscard]] constexpr reference operator[](size_type idx) noexcept
 		{
-			assert(m_size > idx);
+			::assert(m_size > idx);
 			return data()[idx];
 		}
 
 		[[nodiscard]] constexpr const_reference operator[](size_type idx) const noexcept
 		{
-			assert(m_size > idx);
+			::assert(m_size > idx);
 			return data()[idx];
 		}
 

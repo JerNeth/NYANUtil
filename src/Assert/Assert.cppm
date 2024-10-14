@@ -24,8 +24,8 @@ export module NYANAssert:Assert;
 import NYANLog;
 
 namespace impl {
-	template<typename T, typename... Args>
-	concept Invocable = std::is_nothrow_invocable_r<bool, T, Args...>::value;
+	template<typename T>
+	concept Invocable = std::is_invocable_r<bool, T>::value;
 }
 
 export namespace nyan
@@ -92,11 +92,11 @@ export namespace nyan
 			template <bool EvaluationEnabled>
 			class Assertable {
 			public:
-				template<impl::Invocable Fun, typename... Args>
-				constexpr Assertable(Fun fun, Args... args) noexcept
+				template<impl::Invocable Fun>
+				constexpr Assertable(Fun&& fun) noexcept
 				{
 					if constexpr (EvaluationEnabled)
-						m_condition = fun(args...);
+						m_condition = std::invoke(std::forward<Fun>(fun));
 					else
 						m_condition = true;
 				}

@@ -43,4 +43,26 @@ namespace nyan
             testAssertNoExit(false);
             });
     }
+    TEST(Assert, Lazy) {
+
+        using namespace assert;
+        constexpr auto testAssert = Assert<AssertionLevel::Enabled, AssertionExitMode::Disabled, AssertionLogMode::Disabled>{};
+
+        int flag = 0;
+
+        EXPECT_NO_FATAL_FAILURE({
+            testAssert([&]() {flag++; return false; });
+            });
+
+        EXPECT_EQ(flag, 1);
+
+        flag = 0;
+
+        constexpr auto testAssertDisabled = Assert<AssertionLevel::Disabled, AssertionExitMode::Disabled, AssertionLogMode::Disabled>{};
+
+        EXPECT_NO_FATAL_FAILURE({
+            testAssertDisabled([&]() {flag++; return false; });
+            });
+        EXPECT_EQ(flag, 0);
+    }
 }
