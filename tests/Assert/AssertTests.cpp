@@ -1,7 +1,8 @@
-import NYANAssert;
-
-
 #include <gtest/gtest.h>
+
+import NYANAssert;
+import std;
+
 #undef assert
 namespace nyan
 {
@@ -64,5 +65,9 @@ namespace nyan
             testAssertDisabled([&]() {flag++; return false; });
             });
         EXPECT_EQ(flag, 0);
+        std::expected<uint32_t, uint32_t> a = std::unexpected{ 0u };
+        EXPECT_EXIT({
+            defaultAssert(a);
+            }, testing::ExitedWithCode(3), "nyan::Assert");
     }
 }

@@ -29,7 +29,7 @@ namespace impl {
 	concept Invocable = std::is_invocable_r<bool, T>::value;
 
 	template<typename T>
-	concept Convertible = std::is_convertible<T, bool>::value;
+	concept ConvertibleBool = requires(T a) { static_cast<bool>(a); };
 
 	template <bool EvaluationEnabled>
 	class Assertable {
@@ -42,8 +42,8 @@ namespace impl {
 			else
 				m_condition = true;
 		}
-		template<impl::Convertible c>
-		constexpr Assertable(c condition) noexcept :
+		template<impl::ConvertibleBool C>
+		constexpr Assertable(C&& condition) noexcept :
 			m_condition(static_cast<bool>(condition))
 		{
 		}
