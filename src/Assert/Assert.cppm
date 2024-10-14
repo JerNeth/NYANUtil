@@ -27,6 +27,27 @@ import NYANLog;
 namespace impl {
 	template<typename T>
 	concept Invocable = std::is_invocable_r<bool, T>::value;
+
+	template <bool EvaluationEnabled>
+	class Assertable {
+	public:
+		template<impl::Invocable Fun>
+		constexpr Assertable(Fun&& fun) noexcept
+		{
+			if constexpr (EvaluationEnabled)
+				m_condition = std::invoke(std::forward<Fun>(fun));
+			else
+				m_condition = true;
+		}
+		constexpr Assertable(bool a) noexcept :
+			m_condition(a)
+		{
+		}
+
+		constexpr operator bool() const noexcept { return m_condition; }
+	private:
+		bool m_condition{};
+	};
 }
 
 export namespace nyan
@@ -90,28 +111,9 @@ export namespace nyan
 
 		template<AssertionLevel level = assertionLevel, AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = loggingBehavior>
 		struct Assert {
-			template <bool EvaluationEnabled>
-			class Assertable {
-			public:
-				template<impl::Invocable Fun>
-				constexpr Assertable(Fun&& fun) noexcept
-				{
-					if constexpr (EvaluationEnabled)
-						m_condition = std::invoke(std::forward<Fun>(fun));
-					else
-						m_condition = true;
-				}
-				constexpr Assertable(bool a) noexcept :
-					m_condition(a)
-				{
-				}
 
-				constexpr operator bool() const noexcept { return m_condition; }
-			private:
-				bool m_condition{};
-			};
 
-			constexpr void operator()([[maybe_unused]] Assertable<(level != AssertionLevel::Disabled)> condition,
+			constexpr void operator()([[maybe_unused]] impl::Assertable<(level != AssertionLevel::Disabled)> condition,
 				[[maybe_unused]] std::string_view msg = "",
 				[[maybe_unused]] const std::source_location& location = std::source_location::current()) const noexcept
 			{
