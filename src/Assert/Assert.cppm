@@ -20,6 +20,10 @@ module;
 //#include <stacktrace>
 //#endif
 
+#ifdef WIN32
+#include <intrin.h>
+#endif
+
 export module NYANAssert:Assert;
 import std;
 import NYANLog;
@@ -74,6 +78,10 @@ export namespace nyan
 			SourceLocation,
 			StackTrace,
 		};
+		enum class AssertionDebugMode {
+			Disabled,
+			Enabled,
+		};
 #ifdef ASSERTION_LEVEL
 		inline constexpr AssertionLevel assertionLevel = static_cast<AssertionLevel>(ASSERTION_LEVEL);
 		static_assert(ASSERTION_LEVEL < 3);
@@ -81,9 +89,9 @@ export namespace nyan
 #undef ASSERTION_LEVEL
 #else 
 #ifdef NDEBUG
-		inline constexpr AssertionLevel assertionLevel = AssertionLevel::Enabled;
-#else
 		inline constexpr AssertionLevel assertionLevel = AssertionLevel::Disabled;
+#else
+		inline constexpr AssertionLevel assertionLevel = AssertionLevel::Enabled;
 #endif
 #endif
 
@@ -94,26 +102,39 @@ export namespace nyan
 #undef ASSERTION_EXIT_MODE
 #else 
 #ifdef NDEBUG
-		inline constexpr AssertionExitMode AssertionExitMode = AssertionExitMode::Abort;
-#else
 		inline constexpr AssertionExitMode AssertionExitMode = AssertionExitMode::Disabled;
+#else
+		inline constexpr AssertionExitMode AssertionExitMode = AssertionExitMode::Abort;
 #endif
 #endif
 
 #ifdef ASSERTION_LOG_MODE
-		inline constexpr AssertionLogMode loggingBehavior = static_cast<AssertionLogMode>(ASSERTION_LOG_MODE);
+		inline constexpr AssertionLogMode assertionLoggingBehavior = static_cast<AssertionLogMode>(ASSERTION_LOG_MODE);
 		static_assert(ASSERTION_LOG_MODE < 4);
 		static_assert(ASSERTION_LOG_MODE >= 0);
 #undef ASSERTION_LOG_MODE
 #else 
 #ifdef NDEBUG
-		inline constexpr AssertionLogMode loggingBehavior = AssertionLogMode::StackTrace;
+		inline constexpr AssertionLogMode assertionLoggingBehavior = AssertionLogMode::Disabled ;
 #else
-		inline constexpr AssertionLogMode loggingBehavior = AssertionLogMode::Disabled;
+		inline constexpr AssertionLogMode assertionLoggingBehavior = AssertionLogMode::StackTrace;
 #endif
 #endif
 
-		template<AssertionLevel level = assertionLevel, AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = loggingBehavior>
+#ifdef ASSERTION_DEBUG_MODE
+		inline constexpr AssertionDebugMode assertionDebugBehavior = static_cast<AssertionDebugMode>(ASSERTION_DEBUG_MODE);
+		static_assert(ASSERTION_DEBUG_MODE < 2);
+		static_assert(ASSERTION_DEBUG_MODE >= 0);
+#undef ASSERTION_DEBUG_MODE
+#else 
+#ifdef NDEBUG
+		inline constexpr AssertionDebugMode assertionDebugBehavior = AssertionDebugMode::Disabled;
+#else
+		inline constexpr AssertionDebugMode assertionDebugBehavior = AssertionDebugMode::Enabled;
+#endif
+#endif
+
+		template<AssertionLevel level = assertionLevel, AssertionExitMode exitMode = assertionExitMode, AssertionLogMode logMode = assertionLoggingBehavior, AssertionDebugMode debugBehavior = assertionDebugBehavior>
 		struct Assert {
 
 
@@ -126,17 +147,20 @@ export namespace nyan
 				if (condition)
 					return;
 
-				if constexpr (assertionLogMode == AssertionLogMode::MessageOnly)
+				if constexpr (logMode == AssertionLogMode::MessageOnly)
 					nyan::log::error().message(msg);
-				else if constexpr (assertionLogMode == AssertionLogMode::SourceLocation)
+				else if constexpr (logMode == AssertionLogMode::SourceLocation)
 					nyan::log::error().message(msg).message("\n").location(location);
-				else if constexpr (assertionLogMode == AssertionLogMode::StackTrace)
+				else if constexpr (logMode == AssertionLogMode::StackTrace)
 //#ifdef USE_STACKTRACE
 					nyan::log::error().message(msg).message("\n").stacktrace(std::stacktrace::current(1));
 //#else
 					//nyan::log::error().message(msg).message("\n").location(location);
 //#endif
-
+#ifdef WIN32
+				if constexpr (debugBehavior == AssertionDebugMode::Enabled)
+					__debugbreak();
+#endif
 
 				if constexpr (exitMode == AssertionExitMode::QuickExit)
 					std::quick_exit(1);
@@ -156,13 +180,13 @@ export namespace nyan
 			//	return T{};
 			//}
 		};
-		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = loggingBehavior>
+		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = assertionLoggingBehavior>
 		constexpr auto AssertionsEnabled = Assert< AssertionLevel::Enabled, exitMode, assertionLogMode>{};
 
-		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = loggingBehavior>
+		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = assertionLoggingBehavior>
 		constexpr auto AssertionsDisabled = Assert< AssertionLevel::Disabled, exitMode, assertionLogMode>{};
 
-		constexpr auto defaultAssert = Assert<assertionLevel, assertionExitMode, loggingBehavior>{};
+		constexpr auto defaultAssert = Assert<assertionLevel, assertionExitMode, assertionLoggingBehavior, assertionDebugBehavior>{};
 
 	};
 
