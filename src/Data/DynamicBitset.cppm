@@ -3,10 +3,17 @@ module;
 #include <array>
 #include <expected>
 #include <bit>
-#include <cassert>
 #include <optional>
+#include <string_view>
 
 export module NYANData:DynamicBitset;
+import NYANAssert;
+
+#ifdef NDEBUG
+constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Disabled, nyan::assert::AssertionExitMode::Disabled, nyan::assert::AssertionLogMode::Disabled>{};
+#else
+constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Enabled, nyan::assert::AssertionExitMode::Abort, nyan::assert::AssertionLogMode::StackTrace>{};
+#endif
 
 export namespace nyan
 {
@@ -28,7 +35,7 @@ export namespace nyan
 			m_bufferSize(other.m_bufferSize)
 		{
 			m_occupancy = static_cast<StorageType*>(malloc(m_bufferSize * sizeof(StorageType)));
-			assert(m_occupancy);
+			::assert(m_occupancy);
 			if (m_occupancy)
 				memcpy(m_occupancy, other.m_occupancy, m_bufferSize * sizeof(StorageType));
 			else
@@ -44,7 +51,7 @@ export namespace nyan
 			if (this != std::addressof(other)) {
 				m_bufferSize = other.m_bufferSize;
 				m_occupancy = static_cast<StorageType*>(malloc(m_bufferSize * sizeof(StorageType)));
-				assert(m_occupancy);
+				::assert(m_occupancy);
 				if (m_occupancy)
 					memcpy(m_occupancy, other.m_occupancy, m_bufferSize * sizeof(StorageType));
 				else
@@ -90,12 +97,12 @@ export namespace nyan
 				//	break;
 				}
 			}
-			assert(m_bufferSize);
+			::assert(m_bufferSize);
 			return bucket * occupancySize + std::countr_one(m_occupancy[bucket]);
 		}
 		size_t popcount() const noexcept {
 			size_t ret = 0;
-			assert(m_occupancy);
+			::assert(m_occupancy);
 			for (size_t bucket = 0; bucket < m_bufferSize; bucket++) {
 				ret += std::popcount(m_occupancy[bucket]);
 			}
@@ -107,23 +114,23 @@ export namespace nyan
 			}
 		}
 		constexpr bool test(size_t idx) const noexcept {
-			assert(m_occupancy);
-			assert(idx < capacity());
+			::assert(m_occupancy);
+			::assert(idx < capacity());
 			return (m_occupancy[idx >> bitsPerWordBitPos] >> (idx & bitsDivMask)) & singleMask;
 		}
 		constexpr void set(size_t idx) noexcept {
-			assert(m_occupancy);
-			assert(idx < capacity());
+			::assert(m_occupancy);
+			::assert(idx < capacity());
 			m_occupancy[idx >> bitsPerWordBitPos] |= singleMask << (idx & bitsDivMask);
 		}
 		constexpr void reset(size_t idx) noexcept {
-			assert(m_occupancy);
-			assert(idx < capacity());
+			::assert(m_occupancy);
+			::assert(idx < capacity());
 			m_occupancy[idx >> bitsPerWordBitPos] &= ~(singleMask << (idx & bitsDivMask));
 		}
 		constexpr void toggle(size_t idx) noexcept {
-			assert(m_occupancy);
-			assert(idx < capacity());
+			::assert(m_occupancy);
+			::assert(idx < capacity());
 			m_occupancy[idx >> bitsPerWordBitPos] ^= singleMask << (idx & bitsDivMask);
 		}
 		constexpr size_t capacity() const noexcept {

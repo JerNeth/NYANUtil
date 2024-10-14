@@ -2,11 +2,18 @@ module;
 
 #include <array>
 #include <bit>
-#include <cassert>
 #include <limits>
 #include <iostream>
+#include <string_view>
 
 export module NYANData:StaticBitset;
+import NYANAssert;
+
+#ifdef NDEBUG
+constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Disabled, nyan::assert::AssertionExitMode::Disabled, nyan::assert::AssertionLogMode::Disabled>{};
+#else
+constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Enabled, nyan::assert::AssertionExitMode::Abort, nyan::assert::AssertionLogMode::StackTrace>{};
+#endif
 
 namespace impl {
 	template<class F, class T>
@@ -39,14 +46,14 @@ export namespace nyan
 		}
 		[[nodiscard]] constexpr bool test(T _idx) const noexcept {
 			const size_t idx = static_cast<size_t>(_idx);
-			assert(idx < bitSize);
+			::assert(idx < bitSize);
 			auto& word = m_data[idx >> bitsPerWordBitPos];
 			const auto bit = 1ull << (idx & bitsMask);
 			return static_cast<decltype(bit)>(word) & bit;
 		}
 		[[nodiscard]] constexpr bool only(T _idx) const noexcept {
 			const size_t idx = static_cast<size_t>(_idx);
-			assert(idx < bitSize);
+			::assert(idx < bitSize);
 			if constexpr (typeSize > 1) {
 				for (size_t i = 0; i < (idx >> bitsPerWordBitPos); i++) {
 					if (m_data[i] != 0)
@@ -124,7 +131,7 @@ export namespace nyan
 		}
 		constexpr bitset& set(T _idx) noexcept {
 			const size_t idx = static_cast<size_t>(_idx);
-			assert(idx < bitSize);
+			::assert(idx < bitSize);
 			auto& word = m_data[idx >> bitsPerWordBitPos];
 			const auto bit = 1ull << (idx & bitsMask);
 			word |= static_cast<bitType>(bit);
@@ -138,7 +145,7 @@ export namespace nyan
 		}
 		constexpr bitset& reset(T _idx) noexcept {
 			const size_t idx = static_cast<size_t>(_idx);
-			assert(idx < bitSize);
+			::assert(idx < bitSize);
 			auto& word = m_data[idx >> bitsPerWordBitPos];
 			const auto bit = 1ull << (idx & bitsMask);
 			word &= ~bit;
@@ -204,7 +211,7 @@ export namespace nyan
 		}
 		constexpr bitset& flip(T _idx) noexcept {
 			const size_t idx = static_cast<size_t>(_idx);
-			assert(idx < bitSize);
+			::assert(idx < bitSize);
 			auto& word = m_data[idx >> bitsPerWordBitPos];
 			const auto bit = 1ull << (idx & bitsMask);
 			word ^= static_cast<bitType>(bit);

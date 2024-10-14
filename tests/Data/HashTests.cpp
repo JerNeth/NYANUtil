@@ -7,29 +7,30 @@ import NYANData;
 
 namespace nyan
 {
-    //TEST(Hashtests, ConstexprArbitraryHash) {
-    //    constexpr auto aVal = 64531214;
-    //    constexpr auto bVal = 451134534531214;
-    //    struct B
-    //    {
-    //        uint64_t a{ static_cast<uint64_t>(aVal) };
-    //        uint64_t b{ static_cast<uint64_t>(bVal) };
-    //    } c;
+    TEST(Hashtests, ConstexprArbitraryHash) {
+        constexpr auto aVal = 64531214;
+        constexpr auto bVal = 451134534531214;
+        struct B
+        {
+            uint64_t a{ static_cast<uint64_t>(aVal) };
+            uint64_t b{ static_cast<uint64_t>(bVal) };
+        } c;
 
-    //    constexpr auto cba = hash(B{});
+        constexpr auto cba = hash(B{});
 
 
-    //    constexpr HashValue prime{ 0x100000001b3ull };
-    //    constexpr HashValue hashSeed = 0xcbf29ce484222325ull;
+        constexpr HashValue prime{ 0x100000001b3ull };
+        constexpr HashValue hashSeed = 0xcbf29ce484222325ull;
 
-    //    constexpr auto aHashVal = (hashSeed ^ aVal) * prime;
-    //    constexpr auto bHashVal = (hashSeed ^ bVal) * prime;
+        constexpr auto aHashVal = (hashSeed ^ aVal) * prime;
+        constexpr auto bHashVal = (hashSeed ^ bVal) * prime;
 
-    //    constexpr auto tmpVal = (hashSeed ^ aHashVal) * prime;
-    //    constexpr auto resultVal = (tmpVal ^ bHashVal) * prime;
+        constexpr auto tmpVal = (hashSeed ^ aHashVal) * prime;
+        constexpr auto resultVal = (tmpVal ^ bHashVal) * prime;
 
-    //    EXPECT_EQ(cba, resultVal);
-    //}
+        EXPECT_EQ(cba, resultVal);
+        EXPECT_EQ(cba, 1666922125614695255ull);
+    }
     TEST(Hashtests, SpanHash) {
         constexpr auto aVal = 64531214;
         constexpr auto bVal = 451134534531214;
@@ -43,13 +44,13 @@ namespace nyan
 
         auto cba = hash(std::span{g} );
 
-
         EXPECT_EQ(cba, 17233702914504188298ull);
     }
     TEST(Hashtests, ByteHash) {
         std::vector<std::byte> data;
 
         constexpr auto testSize = 1 << 16;
+        srand(static_cast<int>(451134534531214));
         for(size_t i = 0; i < testSize; ++i)
         {
             data.push_back(static_cast<std::byte>(rand()% 255));
@@ -57,7 +58,6 @@ namespace nyan
 
         auto cba = hash(std::span{ data });
 
-
-        EXPECT_EQ(cba, 13931541190864799959ull);
+        EXPECT_EQ(cba, 322392926727896592ull);
     }
 }

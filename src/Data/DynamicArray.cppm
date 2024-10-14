@@ -4,14 +4,21 @@ module;
 #include <concepts>
 #include <expected>
 #include <bit>
-#include <cassert>
 #include <optional>
 #include <cstdlib>
+#include <string_view>
 #include <vector>
 
 export module NYANData:DynamicArray;
 //import std;
+import NYANAssert;
 import :Common;
+
+#ifdef NDEBUG
+constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Disabled, nyan::assert::AssertionExitMode::Disabled, nyan::assert::AssertionLogMode::Disabled>{};
+#else
+constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Enabled, nyan::assert::AssertionExitMode::Abort, nyan::assert::AssertionLogMode::StackTrace>{};
+#endif
 
 export namespace nyan
 {
@@ -147,7 +154,7 @@ export namespace nyan
 		constexpr DynamicArray() noexcept = default;
 		constexpr ~DynamicArray() noexcept
 		{
-			assert(!(static_cast<bool>(m_data) ^ static_cast <bool>(m_capacity)));
+			::assert(!(static_cast<bool>(m_data) ^ static_cast <bool>(m_capacity)));
 			clean();
 			if (m_data)
 #if _MSC_VER
@@ -339,15 +346,15 @@ export namespace nyan
 
 		[[nodiscard]] reference operator[](size_type idx) noexcept
 		{
-			assert(m_data);
-			assert(m_size > idx);
+			::assert(m_data);
+			::assert(m_size > idx);
 			return m_data[idx];
 		}
 
 		[[nodiscard]] const_reference operator[](size_type idx) const noexcept
 		{
-			assert(m_data);
-			assert(m_size > idx);
+			::assert(m_data);
+			::assert(m_size > idx);
 			return m_data[idx];
 		}
 

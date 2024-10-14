@@ -36,7 +36,7 @@ namespace impl
 		constexpr operator T(); // non explicit
 	};
 	template<class T>
-	auto to_tuple(T&& object) noexcept {
+	constexpr auto to_tuple(T&& object) noexcept {
 		using type = std::decay_t<T>;
 		if constexpr (is_braces_constructible<type, any_type, any_type, any_type, any_type>{}) {
 			auto&& [p1, p2, p3, p4, p5, p6] = object;
@@ -217,7 +217,8 @@ export namespace nyan
 
 		auto fun = [&](const auto& val)
 			{
-				return hashVal = (hashVal ^ hash(val)) * prime;
+				hashVal = (hashVal ^ hash(val)) * prime;
+				return hashVal;
 			};
 		
 		std::apply([&hashVal, &fun](auto&&... args) { (fun(args), ...); }, impl::to_tuple(t));
