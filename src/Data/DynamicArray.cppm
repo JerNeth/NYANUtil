@@ -14,12 +14,7 @@ export module NYANData:DynamicArray;
 import std;
 import NYANAssert;
 import :Common;
-
-#ifdef NDEBUG
-constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Disabled, nyan::assert::AssertionExitMode::Disabled, nyan::assert::AssertionLogMode::Disabled>{};
-#else
-constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Enabled, nyan::assert::AssertionExitMode::Abort, nyan::assert::AssertionLogMode::StackTrace>{};
-#endif
+import :ModuleSettings;
 
 export namespace nyan
 {

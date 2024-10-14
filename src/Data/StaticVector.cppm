@@ -11,19 +11,18 @@ module;
 
 export module NYANData:StaticVector;
 import std;
+
 import NYANAssert;
+
 import :Common;
+import :ModuleSettings;
+
 
 using std::uint8_t;
 using std::uint16_t;
 using std::uint32_t;
 using std::uint64_t;
 
-#ifdef NDEBUG
-constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Disabled, nyan::assert::AssertionExitMode::Disabled, nyan::assert::AssertionLogMode::Disabled>{};
-#else
-constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Enabled, nyan::assert::AssertionExitMode::Abort, nyan::assert::AssertionLogMode::StackTrace>{};
-#endif
 
 export namespace nyan
 {

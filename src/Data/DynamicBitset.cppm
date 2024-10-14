@@ -8,13 +8,11 @@ module;
 
 export module NYANData:DynamicBitset;
 import std;
+
 import NYANAssert;
 
-#ifdef NDEBUG
-constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Disabled, nyan::assert::AssertionExitMode::Disabled, nyan::assert::AssertionLogMode::Disabled>{};
-#else
-constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Enabled, nyan::assert::AssertionExitMode::Abort, nyan::assert::AssertionLogMode::StackTrace>{};
-#endif
+import :ModuleSettings;
+
 
 export namespace nyan
 {
