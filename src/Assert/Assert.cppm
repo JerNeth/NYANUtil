@@ -1,26 +1,27 @@
 module;
 
-#if __cpp_lib_expected >= 202202L
-#include <expected>
-#endif
-#include <type_traits>
-#include <source_location>
-#include <string>
-#include <string_view>
-#include <array>
-#include <iostream>
-#include <vector>
-#include <format>
-
-#if __cpp_lib_stacktrace >= 202011L
-#define USE_STACKTRACE
-#endif
-
-#ifdef USE_STACKTRACE
-#include <stacktrace>
-#endif
+//#if __cpp_lib_expected >= 202202L
+//#include <expected>
+//#endif
+//#include <type_traits>
+//#include <source_location>
+//#include <string>
+//#include <string_view>
+//#include <array>
+//#include <iostream>
+//#include <vector>
+//#include <format>
+//
+//#if __cpp_lib_stacktrace >= 202011L
+//#define USE_STACKTRACE
+//#endif
+//
+//#ifdef USE_STACKTRACE
+//#include <stacktrace>
+//#endif
 
 export module NYANAssert:Assert;
+import std;
 import NYANLog;
 
 namespace impl {
@@ -124,17 +125,17 @@ export namespace nyan
 				else if constexpr (assertionLogMode == AssertionLogMode::SourceLocation)
 					nyan::log::error().message(msg).message("\n").location(location);
 				else if constexpr (assertionLogMode == AssertionLogMode::StackTrace)
-#ifdef USE_STACKTRACE
+//#ifdef USE_STACKTRACE
 					nyan::log::error().message(msg).message("\n").stacktrace(std::stacktrace::current(1));
-#else
-					nyan::log::error().message(msg).message("\n").location(location);
-#endif
+//#else
+					//nyan::log::error().message(msg).message("\n").location(location);
+//#endif
 
 
 				if constexpr (exitMode == AssertionExitMode::QuickExit)
-					std::quick_exit(EXIT_FAILURE);
+					std::quick_exit(1);
 				else if constexpr (exitMode == AssertionExitMode::Exit)
-					std::exit(EXIT_FAILURE);
+					std::exit(1);
 				else if constexpr (exitMode == AssertionExitMode::Abort)
 					std::abort();
 			}

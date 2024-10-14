@@ -1,11 +1,16 @@
 module;
 
-#include <bit>
-#include <cstdint>
-#include <span>
-#include <tuple>
+//#include <bit>
+//#include <cstdint>
+//#include <span>
+//#include <tuple>
 
 export module NYANData:Hash;
+import std;
+using std::uint8_t;
+using std::uint16_t;
+using std::uint32_t;
+using std::uint64_t;
 
 namespace impl
 {
@@ -176,7 +181,7 @@ namespace impl
 
 export namespace nyan
 {
-	using HashValue = uint64_t;
+	using HashValue = std::uint64_t;
 
 
 	template<typename T>

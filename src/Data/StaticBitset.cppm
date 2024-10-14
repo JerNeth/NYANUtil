@@ -1,12 +1,13 @@
 module;
 
-#include <array>
-#include <bit>
-#include <limits>
-#include <iostream>
-#include <string_view>
+//#include <array>
+//#include <bit>
+//#include <limits>
+//#include <iostream>
+//#include <string_view>
 
 export module NYANData:StaticBitset;
+import std;
 import NYANAssert;
 
 #ifdef NDEBUG
@@ -14,7 +15,10 @@ constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel
 #else
 constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Enabled, nyan::assert::AssertionExitMode::Abort, nyan::assert::AssertionLogMode::StackTrace>{};
 #endif
-
+using std::uint8_t;
+using std::uint16_t;
+using std::uint32_t;
+using std::uint64_t;
 namespace impl {
 	template<class F, class T>
 	concept Callable = requires(F && f, T && t) { f(t); };
@@ -241,7 +245,7 @@ export namespace nyan
 		constexpr bool operator==(const bitset& rhs) const noexcept {
 			if constexpr (bitSize == 0)
 				return true;
-			return memcmp(m_data.data(), rhs.m_data.data(), typeSize * sizeof(bitType)) == 0;
+			return std::memcmp(m_data.data(), rhs.m_data.data(), typeSize * sizeof(bitType)) == 0;
 		}
 		constexpr bitset<bitSize, T> operator!=(const bitset<bitSize, T>& rhs) noexcept {
 			return !(*this == rhs);

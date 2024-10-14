@@ -1,12 +1,13 @@
 module;
-
-#include <array>
-#include <expected>
-#include <bit>
-#include <optional>
-#include <string_view>
+//
+//#include <array>
+//#include <expected>
+//#include <bit>
+//#include <optional>
+//#include <string_view>
 
 export module NYANData:DynamicBitset;
+import std;
 import NYANAssert;
 
 #ifdef NDEBUG
@@ -29,15 +30,15 @@ export namespace nyan
 		DynamicBitset() noexcept = default;
 		~DynamicBitset() noexcept {
 			if (m_occupancy)
-				free(m_occupancy);
+				std::free(m_occupancy);
 		}
 		DynamicBitset(const DynamicBitset& other) noexcept :
 			m_bufferSize(other.m_bufferSize)
 		{
-			m_occupancy = static_cast<StorageType*>(malloc(m_bufferSize * sizeof(StorageType)));
+			m_occupancy = static_cast<StorageType*>(std::malloc(m_bufferSize * sizeof(StorageType)));
 			::assert(m_occupancy);
 			if (m_occupancy)
-				memcpy(m_occupancy, other.m_occupancy, m_bufferSize * sizeof(StorageType));
+				std::memcpy(m_occupancy, other.m_occupancy, m_bufferSize * sizeof(StorageType));
 			else
 				m_bufferSize = 0;
 		}
@@ -50,10 +51,10 @@ export namespace nyan
 		{
 			if (this != std::addressof(other)) {
 				m_bufferSize = other.m_bufferSize;
-				m_occupancy = static_cast<StorageType*>(malloc(m_bufferSize * sizeof(StorageType)));
+				m_occupancy = static_cast<StorageType*>(std::malloc(m_bufferSize * sizeof(StorageType)));
 				::assert(m_occupancy);
 				if (m_occupancy)
-					memcpy(m_occupancy, other.m_occupancy, m_bufferSize * sizeof(StorageType));
+					std::memcpy(m_occupancy, other.m_occupancy, m_bufferSize * sizeof(StorageType));
 				else
 					m_bufferSize = 0;
 			}
@@ -76,11 +77,11 @@ export namespace nyan
 					newSize = new_capacity / occupancySize;
 
 				newSize += (newSize * occupancySize != new_capacity);
-				auto data = static_cast<StorageType*>(realloc(m_occupancy, newSize * sizeof(StorageType)));
+				auto data = static_cast<StorageType*>(std::realloc(m_occupancy, newSize * sizeof(StorageType)));
 				if (!data)
 					return false;
 				m_occupancy = data;
-				memset(m_occupancy + m_bufferSize, 0, (newSize - m_bufferSize) * sizeof(StorageType));
+				std::memset(m_occupancy + m_bufferSize, 0, (newSize - m_bufferSize) * sizeof(StorageType));
 				m_bufferSize = newSize;
 			}
 			return true;

@@ -1,6 +1,5 @@
 ﻿add_executable(AssertTests AssertTests.cpp)
 
-enable_testing()
 target_link_libraries(AssertTests 
 	PRIVATE 
 			NYAN::Assert

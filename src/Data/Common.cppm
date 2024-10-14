@@ -1,8 +1,9 @@
 module;
 
-#include <type_traits>
+//#include <type_traits>
 
 export module NYANData:Common;
+import std;
 
 export namespace nyan
 {

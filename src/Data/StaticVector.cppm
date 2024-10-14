@@ -1,17 +1,23 @@
 module;
 
-#include <array>
-#include <bit>
-#include <cstdlib>
-#if __cpp_lib_expected >= 202202L
-#include <expected>
-#endif
-#include <string_view>
-#include <vector>
+//#include <array>
+//#include <bit>
+//#include <cstdlib>
+//#if __cpp_lib_expected >= 202202L
+//#include <expected>
+//#endif
+//#include <string_view>
+//#include <vector>
 
 export module NYANData:StaticVector;
+import std;
 import NYANAssert;
 import :Common;
+
+using std::uint8_t;
+using std::uint16_t;
+using std::uint32_t;
+using std::uint64_t;
 
 #ifdef NDEBUG
 constexpr inline auto assert = nyan::assert::Assert<nyan::assert::AssertionLevel::Disabled, nyan::assert::AssertionExitMode::Disabled, nyan::assert::AssertionLogMode::Disabled>{};
@@ -31,7 +37,7 @@ export namespace nyan
 		using const_pointer = const T*;
 		using reference = T&;
 		using const_reference = const T&;
-		using difference_type = ptrdiff_t;
+		using difference_type = std::ptrdiff_t;
 	private:
 		using array_type = std::array<std::byte, sizeof(value_type)* Capacity>;
 	public:
@@ -306,7 +312,7 @@ export namespace nyan
 			return true;
 		}
 
-#if __cpp_lib_expected >= 202202L
+//#if __cpp_lib_expected >= 202202L
 		template<typename Error>
 		[[nodiscard]] constexpr std::expected<bool, Error> try_push_back(std::expected<value_type, Error>&& value) noexcept requires (std::is_move_constructible_v<value_type> || (std::is_move_assignable_v<value_type> && std::is_default_constructible_v<value_type>)) &&
 			std::is_nothrow_move_constructible_v<Error>
@@ -326,7 +332,7 @@ export namespace nyan
 
 			return true;
 		}
-#endif
+//#endif
 
 		template<class... Args >
 		[[nodiscard]] constexpr bool emplace_back(Args&&... args) noexcept

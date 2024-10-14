@@ -5,7 +5,6 @@
 	"StaticBitsetTests.cpp" 
 	"StaticVectorTests.cpp")
 
-enable_testing()
 target_link_libraries(DataTests 
 	PRIVATE 
 			NYAN::Data

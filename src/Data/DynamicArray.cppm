@@ -1,16 +1,17 @@
 module;
 
-#include <array>
-#include <concepts>
-#include <expected>
-#include <bit>
-#include <optional>
-#include <cstdlib>
-#include <string_view>
-#include <vector>
+//#include <array>
+//#include <concepts>
+//#include <expected>
+//#include <bit>
+//#include <optional>
+//#include <cstdlib>
+//#include <string_view>
+//#include <vector>
+#include <malloc.h>
 
 export module NYANData:DynamicArray;
-//import std;
+import std;
 import NYANAssert;
 import :Common;
 
@@ -160,7 +161,7 @@ export namespace nyan
 #if _MSC_VER
 				_aligned_free(m_data);
 #else
-				free(m_data);
+				std::free(m_data);
 #endif
 		}
 		//Implicit copys are evil
