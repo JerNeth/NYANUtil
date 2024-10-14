@@ -157,6 +157,9 @@ export namespace nyan
 
 		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = loggingBehavior>
 		constexpr auto AssertionsDisabled = Assert< AssertionLevel::Disabled, exitMode, assertionLogMode>{};
+
+		constexpr auto defaultAssert = Assert<assertionLevel, assertionExitMode, loggingBehavior>{};
+
 	};
 
 }
