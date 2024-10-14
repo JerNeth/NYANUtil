@@ -380,18 +380,48 @@ export namespace nyan
                 });
             return std::move(*this);
         }
-        constexpr Logger& location(const std::source_location location = std::source_location::current())& noexcept {
+        constexpr Logger& location(const std::source_location& location = std::source_location::current())& noexcept {
             filter([&]() {
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
                 });
             return *this;
         }
-        constexpr Logger&& location(const std::source_location location = std::source_location::current())&& noexcept {
+        constexpr Logger&& location(const std::source_location& location = std::source_location::current())&& noexcept {
             filter([&]() {
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
                 });
             return std::move(*this);
-        }
+        }        
+        //template<typename ...Args>
+        //constexpr Logger& format(std::format_string<Args...> view, Args&&... args)& noexcept {
+        //    filter([&]() {
+        //        output(std::format(view, args...));
+        //        });
+        //    return *this;
+        //}
+        //template<typename ...Args>
+        //constexpr Logger& format(const std::array<uint8_t, 3>& color, std::format_string<Args...> view, Args&&... args)& noexcept {
+        //    filter([&]() {
+        //        auto col = impl::find_closest_color(color);
+        //        output(std::format("\033[38;5;{}m{}\033[0m", col, std::format(view, args...)));
+        //        });
+        //    return *this;
+        //}
+        //template<typename ...Args>
+        //constexpr Logger&& format(std::format_string<Args...>  view, Args&&... args)&& noexcept {
+        //    filter([&]() {
+        //        output(std::format(view, args...));
+        //        });
+        //    return std::move(*this);
+        //}
+        //template<typename ...Args>
+        //constexpr Logger&& format(const std::array<uint8_t, 3>& color, std::format_string<Args...> view, Args&&... args)&& noexcept {
+        //    filter([&]() {
+        //        auto col = impl::find_closest_color(color);
+        //        output(std::format("\033[38;5;{}m{}\033[0m", col, std::format(view, args...)));
+        //    });
+        //    return std::move(*this);
+        //}
         template<typename ...Args>
         constexpr Logger& format(std::string_view view, Args&&... args)& noexcept {
             filter([&]() {
@@ -425,14 +455,14 @@ export namespace nyan
             return std::move(*this);
         }
 #if __cpp_lib_stacktrace >= 202011L
-        Logger& stacktrace(const std::stacktrace  currentStacktrace = std::stacktrace::current()) & noexcept {
+        Logger& stacktrace(const std::stacktrace&  currentStacktrace = std::stacktrace::current()) & noexcept {
             filter([&]() {
                 for (const auto& trace : currentStacktrace)
                     output(std::format("{}\n", trace.description()));
                 });
             return *this;
         }
-        Logger&& stacktrace(const std::stacktrace  currentStacktrace = std::stacktrace::current()) && noexcept {
+        Logger&& stacktrace(const std::stacktrace&  currentStacktrace = std::stacktrace::current()) && noexcept {
             filter([&]() {
                 for (const auto& trace : currentStacktrace)
                     output(std::format("{}\n", trace.description()));
@@ -440,14 +470,14 @@ export namespace nyan
             return std::move(*this);
         }
 #else
-        constexpr Logger& stacktrace(const std::source_location location = std::source_location::current()) & noexcept {
+        constexpr Logger& stacktrace(const std::source_location& location = std::source_location::current()) & noexcept {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 ignore_exceptions([&]() {
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
                     });
             return *this;
         }
-        constexpr Logger&& stacktrace(const std::source_location location = std::source_location::current()) && noexcept {
+        constexpr Logger&& stacktrace(const std::source_location& location = std::source_location::current()) && noexcept {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 ignore_exceptions([&]() {
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
@@ -458,15 +488,15 @@ export namespace nyan
     private:
         constexpr void output(const std::string& data) noexcept {
             if (!std::is_constant_evaluated())
-                fwrite(data.data(), sizeof(std::string::value_type), data.size(), stream());
+                std::fwrite(data.data(), sizeof(std::string::value_type), data.size(), stream());
             //OutputDebugString(data);
         }
         constexpr void output(std::string_view view) noexcept {
             if (!std::is_constant_evaluated())
-                fwrite(view.data(), sizeof(std::string_view::value_type), view.size(), stream());
+                std::fwrite(view.data(), sizeof(std::string_view::value_type), view.size(), stream());
             //OutputDebugString(view);
         }
-        [[nodiscard]] auto stream() const noexcept {
+        [[nodiscard]] constexpr auto stream() const noexcept {
             if constexpr (type == LoggerType::Error) {
                 return stderr;
             }
@@ -551,6 +581,28 @@ export namespace nyan
         constexpr auto critical_message(const std::array<uint8_t, 3>& color, const std::string_view message) noexcept
         {
             return critical().message(color, message);
+        }
+        constexpr auto flush_verbose() noexcept {
+
+        }
+        constexpr auto flush_warning() noexcept {
+
+        }
+        constexpr auto flush_info() noexcept {
+
+        }
+        constexpr auto flush_error() noexcept {
+
+        }
+        constexpr auto flush_critical() noexcept {
+
+        }
+        constexpr auto flush() noexcept {
+            flush_verbose();
+            flush_warning();
+            flush_info();
+            flush_error();
+            flush_critical();
         }
     }
 }

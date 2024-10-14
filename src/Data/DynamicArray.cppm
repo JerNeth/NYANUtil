@@ -10,6 +10,7 @@ module;
 #include <vector>
 
 export module NYANData:DynamicArray;
+//import std;
 import :Common;
 
 export namespace nyan
@@ -24,7 +25,7 @@ export namespace nyan
 		using reference = T&;
 		using const_reference = const T&;
 		using size_type = size_t;
-		using difference_type = ptrdiff_t;
+		using difference_type = std::ptrdiff_t;
 
 		struct Iterator
 		{

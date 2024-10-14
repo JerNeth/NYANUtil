@@ -16,4 +16,6 @@ target_sources(Data
 	
 target_compile_features(Data PUBLIC cxx_std_23)
 
+target_link_libraries(Data PRIVATE NYAN::Assert)
+
 add_library(NYAN::Data ALIAS Data)
