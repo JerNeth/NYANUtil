@@ -150,7 +150,7 @@ export namespace nyan
 			//	return T{};
 			//}
 		};
-		constexpr Assert assert = Assert{};
+		//constexpr Assert assert = Assert{};
 	};
 
 }
