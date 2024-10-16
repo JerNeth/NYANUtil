@@ -22,6 +22,8 @@ module;
 
 #ifdef WIN32
 #include <intrin.h>
+#elif __linux
+#include <signal.h>
 #endif
 
 export module NYANAssert:Assert;
@@ -63,7 +65,7 @@ export namespace nyan
 	namespace assert {
 		enum class AssertionLevel {
 			Disabled,
-			PassThrough,
+			Critical,
 			Enabled
 		};
 		enum class AssertionExitMode {
@@ -160,11 +162,14 @@ export namespace nyan
 #ifdef WIN32
 				if constexpr (debugBehavior == AssertionDebugMode::Enabled)
 					__debugbreak();
+#elif __linux
+				if constexpr (debugBehavior == AssertionDebugMode::Enabled)
+					raise(SIGTRAP);
 #endif
 
 				if constexpr (exitMode == AssertionExitMode::QuickExit)
-					std::quick_exit(1);
-				else if constexpr (exitMode == AssertionExitMode::Exit)
+					std::quick_exit(1); 
+				else if constexpr (exitMode == AssertionExitMode::Exit) 
 					std::exit(1);
 				else if constexpr (exitMode == AssertionExitMode::Abort)
 					std::abort();
@@ -186,7 +191,12 @@ export namespace nyan
 		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = assertionLoggingBehavior, AssertionDebugMode debugBehavior = assertionDebugBehavior>
 		constexpr auto AssertionsDisabled = Assert< AssertionLevel::Disabled, exitMode, assertionLogMode, debugBehavior>{};
 
+		template<AssertionExitMode exitMode = assertionExitMode, AssertionLogMode assertionLogMode = assertionLoggingBehavior, AssertionDebugMode debugBehavior = assertionDebugBehavior>
+		constexpr auto AssertionsCritical = Assert< AssertionLevel::Critical, exitMode, assertionLogMode, debugBehavior>{};
+
+
 		constexpr auto defaultAssert = Assert<assertionLevel, assertionExitMode, assertionLoggingBehavior, assertionDebugBehavior>{};
+
 
 	};
 
