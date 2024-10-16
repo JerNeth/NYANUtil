@@ -57,8 +57,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_VERSION VERSION
 
     target_compile_features(std PRIVATE cxx_std_23)
     target_compile_features(std PUBLIC cxx_std_20)
-
-    link_libraries(std)
 endif()
  
 

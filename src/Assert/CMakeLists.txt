@@ -15,5 +15,6 @@ target_compile_definitions(Assert PRIVATE ASSERTION_LOG_MODE=3)
 target_compile_definitions(Assert PRIVATE ASSERTION_DEBUG_MODE=1)
 
 target_link_libraries(Assert PRIVATE NYAN::Log)
+target_link_libraries(Assert PUBLIC std)
 
 add_library(NYAN::Assert ALIAS Assert)

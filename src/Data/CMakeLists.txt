@@ -18,8 +18,6 @@ target_sources(Data
 target_compile_features(Data PUBLIC cxx_std_23)
 
 target_link_libraries(Data PRIVATE NYAN::Assert)
-
-get_target_property(my_dep_runtime Data MSVC_RUNTIME_LIBRARY)
-message(STATUS "Runtime library for MyDependency: ${my_dep_runtime}")
+target_link_libraries(Data PUBLIC std)
 
 add_library(NYAN::Data ALIAS Data)

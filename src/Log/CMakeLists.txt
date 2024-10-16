@@ -7,5 +7,6 @@ target_sources(Log
 		NYANLog.cppm)
 	
 target_compile_features(Log PUBLIC cxx_std_23)
+target_link_libraries(Log PUBLIC std)
 
 add_library(NYAN::Log ALIAS Log)
