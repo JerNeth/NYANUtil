@@ -32,7 +32,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     add_compile_options(/wd26812)
     add_compile_options(/DELAY:NOBIND)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 
