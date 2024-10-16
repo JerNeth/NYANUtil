@@ -15,28 +15,53 @@ project(NYAN
         VERSION 0.0.1
         LANGUAGES CXX)
 
-#set(CMAKE_CXX_STANDARD 23)
-       
-#set(CPPSTANDARDMODULE_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/EnableStandardLibraryModule.cmake")
-
-#if(NOT (EXISTS ${CPPSTANDARDMODULE_DOWNLOAD_LOCATION}))
-#    message(STATUS "Downloading EnableStandardLibraryModule.cmake")
-#    file(DOWNLOAD https://raw.githubusercontent.com/stripe2933/CppStandardLibraryModule/main/cmake/EnableStandardLibraryModule.cmake ${CPPSTANDARDMODULE_DOWNLOAD_LOCATION})
-#endif()
-#include(${CPPSTANDARDMODULE_DOWNLOAD_LOCATION})
-
 #Project Wide Settings
 #All Options which change the ABI come here
 message("Detected ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    add_compile_options(/wd26812)
-    add_compile_options(/DELAY:NOBIND)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-endif()
+#if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+#    string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+#    add_compile_options(/wd26812)
+#    add_compile_options(/DELAY:NOBIND)
+#    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+#elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+#endif()
 
-set(CMAKE_CXX_MODULE_STD 1)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "19.36")
+
+    set(tmp ${CMAKE_CXX_COMPILER})
+    cmake_path(REMOVE_FILENAME tmp)
+    cmake_path(GET tmp PARENT_PATH res)
+    cmake_path(GET res PARENT_PATH tmp)
+    cmake_path(GET tmp PARENT_PATH res)
+    cmake_path(GET res PARENT_PATH VCTOOLS_INSTALL_DIR)
+
+    message("VCTOOLS_INSTALL_DIR: ${VCTOOLS_INSTALL_DIR}")
+
+    include(FetchContent)
+    FetchContent_Declare(
+        std
+        URL "file://${VCTOOLS_INSTALL_DIR}/modules"
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        SYSTEM
+    )
+    FetchContent_MakeAvailable(std)
+
+    add_library(std STATIC)
+    target_sources(std PUBLIC
+        FILE_SET CXX_MODULES
+        BASE_DIRS ${std_SOURCE_DIR}
+        FILES
+            ${std_SOURCE_DIR}/std.ixx
+            ${std_SOURCE_DIR}/std.compat.ixx
+    )
+
+    target_compile_features(std PRIVATE cxx_std_23)
+    target_compile_features(std PUBLIC cxx_std_20)
+
+    link_libraries(std)
+endif()
+ 
+
 # ---------------------------------------------------------------------------
 # Options
 # ---------------------------------------------------------------------------
