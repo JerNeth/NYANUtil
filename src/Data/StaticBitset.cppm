@@ -154,8 +154,7 @@ export namespace nyan
 			word &= ~bit;
 			return *this;
 		}
-		//If we don't make it explicit we can sometimes convert to bool instead of using other overloaded operators
-		[[nodiscard]] explicit constexpr operator bool() const noexcept {
+		[[nodiscard]] constexpr operator bool() const noexcept {
 			return any();
 		}
 		[[nodiscard]] constexpr size_t popcount() const noexcept {
@@ -247,26 +246,26 @@ export namespace nyan
 				return true;
 			return std::memcmp(m_data.data(), rhs.m_data.data(), typeSize * sizeof(bitType)) == 0;
 		}
-		constexpr bitset<bitSize, T> operator!=(const bitset<bitSize, T>& rhs) noexcept {
+		constexpr bitset<bitSize, T> operator!=(const bitset<bitSize, T>& rhs) const noexcept {
 			return !(*this == rhs);
 		}
 
-		constexpr bitset<bitSize, T> operator^(const bitset<bitSize, T>& rhs) noexcept {
+		constexpr bitset<bitSize, T> operator^(const bitset<bitSize, T>& rhs) const noexcept {
 			bitset<bitSize, T> ret = *this;
 			return ret ^= rhs;
 		}
 
-		constexpr bitset<bitSize, T> operator&(const bitset<bitSize, T>& rhs) noexcept {
+		constexpr bitset<bitSize, T> operator&(const bitset<bitSize, T>& rhs) const noexcept {
 			bitset<bitSize, T> ret = *this;
 			return ret &= rhs;
 		}
 
-		constexpr bitset<bitSize, T> operator|(const bitset<bitSize, T>& rhs) noexcept {
+		constexpr bitset<bitSize, T> operator|(const bitset<bitSize, T>& rhs) const noexcept {
 			bitset<bitSize, T> ret = *this;
 			return ret |= rhs;
 		}
 
-		constexpr bitset<bitSize, T> operator|(const T& rhs) noexcept {
+		constexpr bitset<bitSize, T> operator|(const T& rhs) const noexcept {
 			bitset<bitSize, T> ret;
 			ret.set(rhs);
 			return ret |= *this;
