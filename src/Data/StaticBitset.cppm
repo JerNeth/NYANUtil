@@ -35,7 +35,8 @@ export namespace nyan
 		//static_assert(std::is_convertible<T, size_t>::value);
 	public:
 		constexpr bitset() noexcept : m_data() {
-			m_data[0] = 0;
+			for(auto& data : m_data)
+				data = 0;
 		}
 		constexpr bitset(bitType t) noexcept {
 			m_data[0] = t;
@@ -153,7 +154,8 @@ export namespace nyan
 			word &= ~bit;
 			return *this;
 		}
-		[[nodiscard]] constexpr operator bool() const noexcept {
+		//If we don't make it explicit we can sometimes convert to bool instead of using other overloaded operators
+		[[nodiscard]] explicit constexpr operator bool() const noexcept {
 			return any();
 		}
 		[[nodiscard]] constexpr size_t popcount() const noexcept {

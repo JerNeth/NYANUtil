@@ -84,52 +84,63 @@ namespace nyan
             Size
         };
         using enum Test;
-        bitset<static_cast<size_t>(Test::Size), Test> bitset;
-        EXPECT_FALSE(bitset.test(A));
-        EXPECT_FALSE(bitset.test(B));
-        EXPECT_FALSE(bitset.test(C));
-        EXPECT_FALSE(bitset.test(B));
-        EXPECT_FALSE(bitset.test(D));
-        EXPECT_FALSE(bitset.test(E));
-        EXPECT_FALSE(bitset.test(F));
-        EXPECT_FALSE(bitset.test(H));
+        bitset<static_cast<size_t>(Test::Size), Test> bset;
+        EXPECT_FALSE(bset.test(A));
+        EXPECT_FALSE(bset.test(B));
+        EXPECT_FALSE(bset.test(C));
+        EXPECT_FALSE(bset.test(B));
+        EXPECT_FALSE(bset.test(D));
+        EXPECT_FALSE(bset.test(E));
+        EXPECT_FALSE(bset.test(F));
+        EXPECT_FALSE(bset.test(H));
         //EXPECT_FALSE(bitset.test(Size)); Will fail assertion
 
-        bitset.set(A);
-        EXPECT_TRUE(bitset.test(A));
-        EXPECT_FALSE(bitset.test(B));
-        EXPECT_FALSE(bitset.test(C));
-        EXPECT_FALSE(bitset.test(B));
-        EXPECT_FALSE(bitset.test(D));
-        EXPECT_FALSE(bitset.test(E));
-        EXPECT_FALSE(bitset.test(F));
-        EXPECT_FALSE(bitset.test(H));
+        bset.set(A);
+        EXPECT_TRUE(bset.test(A));
+        EXPECT_FALSE(bset.test(B));
+        EXPECT_FALSE(bset.test(C));
+        EXPECT_FALSE(bset.test(B));
+        EXPECT_FALSE(bset.test(D));
+        EXPECT_FALSE(bset.test(E));
+        EXPECT_FALSE(bset.test(F));
+        EXPECT_FALSE(bset.test(H));
 
         for (auto i = static_cast<uint32_t>(A); i < static_cast<uint32_t>(Test::Size); ++i)
         {
-            bitset.set(static_cast<Test>(i));
+            bset.set(static_cast<Test>(i));
         }
 
         for (auto i = static_cast<uint32_t>(A); i < static_cast<uint32_t>(Test::Size); ++i)
         {
-            EXPECT_TRUE(bitset.test(static_cast<Test>(i)));
-            bitset.reset(static_cast<Test>(i));
-            EXPECT_FALSE(bitset.test(static_cast<Test>(i)));
+            EXPECT_TRUE(bset.test(static_cast<Test>(i)));
+            bset.reset(static_cast<Test>(i));
+            EXPECT_FALSE(bset.test(static_cast<Test>(i)));
         }
 
         for (auto i = static_cast<uint32_t>(A); i < static_cast<uint32_t>(Test::Size); ++i)
         {
-            EXPECT_FALSE(bitset.test(static_cast<Test>(i)));
+            EXPECT_FALSE(bset.test(static_cast<Test>(i)));
         }
-        bitset.set(C);
-        bitset.set(BZ);
+        bset.set(C);
+        bset.set(BZ);
         for (auto i = static_cast<uint32_t>(A); i < static_cast<uint32_t>(Test::Size); ++i)
         {
             if (static_cast<Test>(i) != C && static_cast<Test>(i) != BZ)
-                EXPECT_FALSE(bitset.test(static_cast<Test>(i)));
+                EXPECT_FALSE(bset.test(static_cast<Test>(i)));
         }
-        EXPECT_TRUE(bitset.test(static_cast<Test>(C)));
-        EXPECT_TRUE(bitset.test(static_cast<Test>(BZ)));
+        EXPECT_TRUE(bset.test(static_cast<Test>(C)));
+        EXPECT_TRUE(bset.test(static_cast<Test>(BZ)));
+
+        bitset<static_cast<size_t>(Test::Size), Test> tval = ~bitset<static_cast<size_t>(Test::Size), Test>{};
+
+        auto tmp = tval & bset;
+
+        for (size_t a = 0; a < static_cast<size_t>(Test::Size); ++a)
+            EXPECT_TRUE(tval.test(static_cast<Test>(a)));
+
+        EXPECT_EQ(bset, tmp);
+
+
     }
     TEST(BitsetTests, getAndClear) {
         enum class Test : uint32_t {
@@ -531,6 +542,8 @@ namespace nyan
             });
 
         EXPECT_EQ(bitsetA, bitsetB);
+
+
 
     }
 }

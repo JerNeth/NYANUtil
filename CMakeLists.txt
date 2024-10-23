@@ -26,14 +26,14 @@ message("Detected ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 #elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 #endif()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "19.36")
+if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "19.36" AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
 
-    set(tmp ${CMAKE_CXX_COMPILER})
-    cmake_path(REMOVE_FILENAME tmp)
-    cmake_path(GET tmp PARENT_PATH res)
-    cmake_path(GET res PARENT_PATH tmp)
-    cmake_path(GET tmp PARENT_PATH res)
-    cmake_path(GET res PARENT_PATH VCTOOLS_INSTALL_DIR)
+    set(VCTOOLS_INSTALL_DIR ${CMAKE_CXX_COMPILER})
+    cmake_path(REMOVE_FILENAME VCTOOLS_INSTALL_DIR)
+    cmake_path(GET VCTOOLS_INSTALL_DIR PARENT_PATH tmp)
+    cmake_path(GET tmp PARENT_PATH VCTOOLS_INSTALL_DIR)
+    cmake_path(GET VCTOOLS_INSTALL_DIR PARENT_PATH tmp)
+    cmake_path(GET tmp PARENT_PATH VCTOOLS_INSTALL_DIR)
 
     message("VCTOOLS_INSTALL_DIR: ${VCTOOLS_INSTALL_DIR}")
 
@@ -58,8 +58,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_VERSION VERSION
     target_compile_features(std PRIVATE cxx_std_23)
     target_compile_features(std PUBLIC cxx_std_20)
 
-    get_target_property(my_dep_runtime std MSVC_RUNTIME_LIBRARY)
-    message(STATUS "Runtime library for std: ${my_dep_runtime}")
+    get_target_property(std_msvc_runtime std MSVC_RUNTIME_LIBRARY)
+    message(STATUS "Runtime library for std: ${std_msvc_runtime}")
 
 endif()
  
