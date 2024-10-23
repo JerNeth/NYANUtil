@@ -1,6 +1,6 @@
 module;
 
-export module NYANData:NotNull;
+export module NYANData:Pointer;
 import std;
 
 import :ModuleSettings;

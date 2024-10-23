@@ -11,9 +11,10 @@ target_sources(Data
 		Hash.cppm
 		ModuleSettings.cppm
 		NYANData.cppm
+		Pointer.cppm
 		StaticBitset.cppm
 		StaticVector.cppm
- "NotNull.cppm")
+)
 	
 target_compile_features(Data PUBLIC cxx_std_23)
 

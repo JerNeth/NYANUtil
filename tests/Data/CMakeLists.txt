@@ -1,7 +1,7 @@
 ﻿add_executable(DataTests 
 	"DynamicArrayTests.cpp" 
 	"DynamicBitsetTests.cpp"  
-	"NotNullTests.cpp"
+	"PointerTests.cpp"
 	"HashTests.cpp" 
 	"StaticBitsetTests.cpp" 
 	"StaticVectorTests.cpp"
