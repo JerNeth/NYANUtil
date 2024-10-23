@@ -13,7 +13,7 @@ target_sources(Data
 		NYANData.cppm
 		StaticBitset.cppm
 		StaticVector.cppm
-)
+ "NotNull.cppm")
 	
 target_compile_features(Data PUBLIC cxx_std_23)
 
