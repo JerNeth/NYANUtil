@@ -159,6 +159,9 @@ export namespace nyan
 //#else
 					//nyan::log::error().message(msg).message("\n").location(location);
 //#endif
+				if (std::is_constant_evaluated())
+					throw 0;
+
 #ifdef WIN32
 				if constexpr (debugBehavior == AssertionDebugMode::Enabled)
 					__debugbreak();
