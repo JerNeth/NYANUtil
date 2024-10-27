@@ -140,6 +140,17 @@ export namespace nyan
 			word |= static_cast<bitType>(bit);
 			return *this;
 		}
+		constexpr bitset& set(T _idx, bool value) noexcept {
+			const size_t idx = static_cast<size_t>(_idx);
+			::assert(idx < bitSize);
+			auto& word = m_data[idx >> bitsPerWordBitPos];
+			const auto bit = 1ull << (idx & bitsMask);
+			if (value)
+				word |= static_cast<bitType>(bit);
+			else
+				word &= ~bit;
+			return *this;
+		}
 		constexpr bitset& reset() noexcept {
 			for (size_t i = 0; i < typeSize; i++) {
 				m_data[i] = 0u;
@@ -244,6 +255,7 @@ export namespace nyan
 		constexpr bool operator==(const bitset& rhs) const noexcept {
 			if constexpr (bitSize == 0)
 				return true;
+
 			return std::memcmp(m_data.data(), rhs.m_data.data(), typeSize * sizeof(bitType)) == 0;
 		}
 		constexpr bitset<bitSize, T> operator!=(const bitset<bitSize, T>& rhs) const noexcept {
