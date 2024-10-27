@@ -103,6 +103,15 @@ export namespace nyan
 			return true;
 		}
 
+		constexpr bool all_of(bitset other) const noexcept {
+			bool all{ true };
+			for (size_t i = 0; i < typeSize; i++) {
+				bitType tmp = other.m_data[i] & m_data[i];
+				all &= tmp != other.m_data[i];
+			}
+			return all;
+		}
+
 		template<typename... Tail, class = std::enable_if_t<are_same<T, Tail...>::value, void>>
 		constexpr bitset get_and_clear(Tail... args) noexcept {
 			bitset flags;
