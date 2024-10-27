@@ -106,8 +106,7 @@ export namespace nyan
 		constexpr bool all_of(bitset other) const noexcept {
 			bool all{ true };
 			for (size_t i = 0; i < typeSize; i++) {
-				bitType tmp = other.m_data[i] & m_data[i];
-				all &= tmp != other.m_data[i];
+				all &= (other.m_data[i] & m_data[i]) != other.m_data[i];
 			}
 			return all;
 		}
@@ -265,7 +264,11 @@ export namespace nyan
 			if constexpr (bitSize == 0)
 				return true;
 
-			return std::memcmp(m_data.data(), rhs.m_data.data(), typeSize * sizeof(bitType)) == 0;
+			bool result = true;
+			for (size_t i = 0; i < typeSize; i++) {
+				result &= m_data[i] == rhs.m_data[i];
+			}
+			return result;
 		}
 		constexpr bitset<bitSize, T> operator!=(const bitset<bitSize, T>& rhs) const noexcept {
 			return !(*this == rhs);
