@@ -324,28 +324,28 @@ export namespace nyan
 
     public:
 
-        constexpr Logger() noexcept
+        Logger() noexcept
         {
         }
-        constexpr Logger(const Logger& other) noexcept = default;
+        Logger(const Logger& other) noexcept = default;
 
-        constexpr Logger(Logger&& other) noexcept :
+        Logger(Logger&& other) noexcept :
             m_newLine(std::exchange(other.m_newLine, false))
         {
         }
-        constexpr Logger& operator=(const Logger& other) noexcept {
+        Logger& operator=(const Logger& other) noexcept {
             if (this != std::addressof(other)) {
                 m_newLine = other.m_newLine;
             }
             return *this;
         }
-        constexpr Logger& operator=(Logger&& other) noexcept {
+        Logger& operator=(Logger&& other) noexcept {
             if (this != std::addressof(other)) {
                 std::swap(m_newLine, other.m_newLine);
             }
             return *this;
         }
-        constexpr ~Logger() noexcept {
+        ~Logger() noexcept {
             if constexpr (!(verbosity & static_cast<uint32_t>(type)))
                 return;
             if (!m_newLine)
@@ -353,84 +353,75 @@ export namespace nyan
             static constexpr std::string_view newLine = "\n";
             filter([&]() {
                 output(newLine);
-            });
+                });
         }
 
-        constexpr Logger& message(const std::string_view message)& noexcept {
+        Logger& message(const std::string_view message) & noexcept {
             filter([&]() {
                 output(message);
                 });
             return *this;
         }
-        constexpr Logger& message(const std::array<uint8_t, 3>& color, const std::string_view message)& noexcept {
+        Logger& message(const std::array<uint8_t, 3>& color, const std::string_view message) & noexcept {
             filter([&]() {
                 output(std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), message));
                 });
             return *this;
         }
-        constexpr Logger&& message(const std::string_view message)&& noexcept {
+        Logger&& message(const std::string_view message) && noexcept {
             filter([&]() {
                 output(message);
                 });
             return std::move(*this);
         }
-        constexpr Logger&& message(const std::array<uint8_t, 3>& color, const std::string_view message)&& noexcept {
+        Logger&& message(const std::array<uint8_t, 3>& color, const std::string_view message) && noexcept {
             filter([&]() {
                 output(std::format("\033[38;5;{}m{}\033[0m", impl::find_closest_color(color), message));
                 });
             return std::move(*this);
         }
-        constexpr Logger& location(const std::source_location& location = std::source_location::current())& noexcept {
+        Logger& location(const std::source_location& location = std::source_location::current()) & noexcept {
             filter([&]() {
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
                 });
             return *this;
         }
-        constexpr Logger&& location(const std::source_location& location = std::source_location::current())&& noexcept {
+        Logger&& location(const std::source_location& location = std::source_location::current()) && noexcept {
             filter([&]() {
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
                 });
             return std::move(*this);
-        }        
-        //template<typename ...Args>
-        //constexpr Logger& format(std::format_string<Args...> view, Args&&... args)& noexcept {
-        //    filter([&]() {
-        //        output(std::format(view, args...));
-        //        });
-        //    return *this;
-        //}
-        //template<typename ...Args>
-        //constexpr Logger& format(const std::array<uint8_t, 3>& color, std::format_string<Args...> view, Args&&... args)& noexcept {
-        //    filter([&]() {
-        //        auto col = impl::find_closest_color(color);
-        //        output(std::format("\033[38;5;{}m{}\033[0m", col, std::format(view, args...)));
-        //        });
-        //    return *this;
-        //}
-        //template<typename ...Args>
-        //constexpr Logger&& format(std::format_string<Args...>  view, Args&&... args)&& noexcept {
-        //    filter([&]() {
-        //        output(std::format(view, args...));
-        //        });
-        //    return std::move(*this);
-        //}
-        //template<typename ...Args>
-        //constexpr Logger&& format(const std::array<uint8_t, 3>& color, std::format_string<Args...> view, Args&&... args)&& noexcept {
-        //    filter([&]() {
-        //        auto col = impl::find_closest_color(color);
-        //        output(std::format("\033[38;5;{}m{}\033[0m", col, std::format(view, args...)));
-        //    });
-        //    return std::move(*this);
-        //}
+        }
         template<typename ...Args>
-        constexpr Logger& format(std::string_view view, Args&&... args)& noexcept {
+        Logger& format(std::format_string<Args...> fmt, Args&&... args) & noexcept {
+            filter([&]() {
+                output(std::format(fmt, std::forward<Args>(args)...));
+                });
+            return *this;
+        }
+        template<typename ...Args>
+        Logger&& format(std::format_string<Args...> fmt, Args&&... args) && noexcept {
+            filter([&]() {
+                output(std::format(fmt, std::forward<Args>(args)...));
+                });
+            return std::move(*this);
+        }
+        template<typename ...Args>
+        Logger& format_runtime(std::format_string<Args...>  view, Args&&... args) & noexcept {
+            filter([&]() {
+                output(std::format(view, args...));
+                });
+            return *this;
+        }
+        template<typename ...Args>
+        Logger&& format_runtime(std::string_view view, Args&&... args) && noexcept {
             filter([&]() {
                 output(std::vformat(view, std::make_format_args(args...)));
                 });
-            return *this;
+            return std::move(*this);
         }
         template<typename ...Args>
-        constexpr Logger& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)& noexcept {
+        Logger& format_color_runtime(const std::array<uint8_t, 3>& color, std::format_string<Args...> view, Args&&... args) & noexcept {
             filter([&]() {
                 auto col = impl::find_closest_color(color);
                 auto str = std::vformat(view, std::make_format_args(args...));
@@ -439,30 +430,41 @@ export namespace nyan
             return *this;
         }
         template<typename ...Args>
-        constexpr Logger&& format(std::string_view view, Args&&... args)&& noexcept {
-            filter([&]() {
-                output(std::vformat(view, std::make_format_args(args...)));
-                });
-            return std::move(*this);
-        }
-        template<typename ...Args>
-        constexpr Logger&& format(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args)&& noexcept {
+        Logger&& format_color_runtime(const std::array<uint8_t, 3>& color, std::string_view view, Args&&... args) && noexcept {
             filter([&]() {
                 auto col = impl::find_closest_color(color);
                 auto str = std::vformat(view, std::make_format_args(args...));
                 output(std::vformat("\033[38;5;{}m{}\033[0m", std::make_format_args(col, str)));
-            });
+                });
+            return std::move(*this);
+        }
+        template<typename ...Args>
+        Logger& format_color(const std::array<uint8_t, 3>& color, std::format_string<Args...> fmt, Args&&... args) & noexcept {
+            filter([&]() {
+                auto col = impl::find_closest_color(color);
+                auto str = std::format(fmt, std::forward<Args>(args)...);
+                output(std::format("\033[38;5;{}m{}\033[0m", col, str));
+                });
+            return *this;
+        }
+        template<typename ...Args>
+        Logger&& format_color(const std::array<uint8_t, 3>& color, std::format_string<Args...> fmt, Args&&... args) && noexcept {
+            filter([&]() {
+                auto col = impl::find_closest_color(color);
+                auto str = std::format(fmt, std::forward<Args>(args)...);
+                output(std::format("\033[38;5;{}m{}\033[0m", col, str));
+                });
             return std::move(*this);
         }
 #if __cpp_lib_stacktrace >= 202011L
-        Logger& stacktrace(const std::stacktrace&  currentStacktrace = std::stacktrace::current()) & noexcept {
+        Logger& stacktrace(const std::stacktrace& currentStacktrace = std::stacktrace::current()) & noexcept {
             filter([&]() {
                 for (const auto& trace : currentStacktrace)
                     output(std::format("{}\n", trace.description()));
                 });
             return *this;
         }
-        Logger&& stacktrace(const std::stacktrace&  currentStacktrace = std::stacktrace::current()) && noexcept {
+        Logger&& stacktrace(const std::stacktrace& currentStacktrace = std::stacktrace::current()) && noexcept {
             filter([&]() {
                 for (const auto& trace : currentStacktrace)
                     output(std::format("{}\n", trace.description()));
@@ -470,14 +472,14 @@ export namespace nyan
             return std::move(*this);
         }
 #else
-        constexpr Logger& stacktrace(const std::source_location& location = std::source_location::current()) & noexcept {
+        Logger& stacktrace(const std::source_location& location = std::source_location::current()) & noexcept {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 ignore_exceptions([&]() {
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
                     });
             return *this;
         }
-        constexpr Logger&& stacktrace(const std::source_location& location = std::source_location::current()) && noexcept {
+        Logger&& stacktrace(const std::source_location& location = std::source_location::current()) && noexcept {
             if constexpr (verbosity & static_cast<uint32_t>(type))
                 ignore_exceptions([&]() {
                 output(std::format("{}:{}:{} {}:", location.file_name(), location.line(), location.column(), location.function_name()));
@@ -486,17 +488,17 @@ export namespace nyan
         }
 #endif
     private:
-        constexpr void output(const std::string& data) noexcept {
+        void output(const std::string& data) noexcept {
             if (!std::is_constant_evaluated())
                 std::fwrite(data.data(), sizeof(std::string::value_type), data.size(), stream());
             //OutputDebugString(data);
         }
-        constexpr void output(std::string_view view) noexcept {
+        void output(std::string_view view) noexcept {
             if (!std::is_constant_evaluated())
                 std::fwrite(view.data(), sizeof(std::string_view::value_type), view.size(), stream());
             //OutputDebugString(view);
         }
-        [[nodiscard]] constexpr auto stream() const noexcept {
+        [[nodiscard]] auto stream() const noexcept {
             if constexpr (type == LoggerType::Error) {
                 return stderr;
             }
@@ -506,7 +508,7 @@ export namespace nyan
             return stdout;
         }
 
-        constexpr void filter(auto fun) noexcept {
+        void filter(auto fun) noexcept {
             if constexpr (verbosity & static_cast<uint32_t>(type)) {
                 try {
                     fun();
@@ -521,43 +523,43 @@ export namespace nyan
     };
 
     namespace log {
-        [[nodiscard]] constexpr Logger< LoggerType::Verbose> verbose() noexcept
+        [[nodiscard]] Logger< LoggerType::Verbose> verbose() noexcept
         {
             return {};
         }
-        [[nodiscard]] constexpr Logger< LoggerType::Warn> warning() noexcept
+        [[nodiscard]] Logger< LoggerType::Warn> warning() noexcept
         {
             return {};
         }
-        [[nodiscard]] constexpr Logger< LoggerType::Info> info() noexcept
+        [[nodiscard]] Logger< LoggerType::Info> info() noexcept
         {
             return {};
         }
-        [[nodiscard]] constexpr Logger< LoggerType::Error>  error() noexcept
+        [[nodiscard]] Logger< LoggerType::Error>  error() noexcept
         {
             return {};
         }
-        [[nodiscard]] constexpr Logger< LoggerType::Critical>  critical() noexcept
+        [[nodiscard]] Logger< LoggerType::Critical>  critical() noexcept
         {
             return {};
         }
 
-        constexpr auto flush_verbose() noexcept {
+        auto flush_verbose() noexcept {
 
         }
-        constexpr auto flush_warning() noexcept {
+        auto flush_warning() noexcept {
 
         }
-        constexpr auto flush_info() noexcept {
+        auto flush_info() noexcept {
 
         }
-        constexpr auto flush_error() noexcept {
+        auto flush_error() noexcept {
 
         }
-        constexpr auto flush_critical() noexcept {
+        auto flush_critical() noexcept {
 
         }
-        constexpr auto flush() noexcept {
+        auto flush() noexcept {
             flush_verbose();
             flush_warning();
             flush_info();
