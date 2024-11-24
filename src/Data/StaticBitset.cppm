@@ -235,7 +235,10 @@ export namespace nyan
 				return m_data[0];
 			}
 		}
-		[[nodiscard]] static constexpr size_t size() noexcept {
+		[[nodiscard]] constexpr size_t size() const noexcept {
+			return popcount();
+		}
+		[[nodiscard]] static constexpr size_t capacity() noexcept {
 			return bitSize;
 		}
 		[[nodiscard]] constexpr bool any() const noexcept {
