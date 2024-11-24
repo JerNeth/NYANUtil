@@ -20,18 +20,38 @@ using std::uint64_t;
 namespace impl {
 	template<class F, class T>
 	concept Callable = requires(F && f, T && t) { f(t); };
+
+	template<typename T>
+	struct identity { using type = T; };
+
+	template<typename T>
+	struct underlying_type { using type = std::underlying_type_t<T>; };
+
+	template<typename T>
+	struct robust_underlying { using type = std::conditional_t< std::is_enum_v<T>, impl::underlying_type<T>, impl::identity<T>>::type; };
+	
+	template<typename T>
+	using robust_underlying_t = robust_underlying<T>::type;
+
+	template<size_t bitSize>
+	struct smallest_fitting_uint { using type = std::conditional_t< bitSize <= 8, uint8_t, std::conditional_t < bitSize <= 16, uint16_t, std::conditional_t < bitSize <= 32, uint32_t, uint64_t>>>;  };
+
+
+
 }
+
 export namespace nyan
 {
 	template<size_t bitSize, typename T = size_t> // typename for indices e.g. enums
 	class bitset {
-		using bitType = std::conditional_t< bitSize <= 8, uint8_t, std::conditional_t < bitSize <= 16, uint16_t, std::conditional_t < bitSize <= 32, uint32_t, uint64_t>>>;
+		using bitType = impl::smallest_fitting_uint<bitSize>::type;
 		static constexpr size_t bitsPerWord = (sizeof(bitType) * 8);
 		static constexpr size_t bitsPerWordBitPos = std::countr_zero(bitsPerWord);
 		static_assert(std::has_single_bit(bitsPerWord));
 		static constexpr size_t bitsMask = bitsPerWord - 1;
 		static constexpr size_t typeSize = bitSize / bitsPerWord + (bitSize % bitsPerWord != 0);
-		static_assert(bitSize <= (std::numeric_limits <std::conditional_t< std::is_enum_v<T>, std::underlying_type_t<T>, T>>::max()));
+
+		static_assert(bitSize <= std::numeric_limits<impl::robust_underlying_t<T>>::max());
 		//static_assert(std::is_convertible<T, size_t>::value);
 	public:
 		constexpr bitset() noexcept : m_data() {
