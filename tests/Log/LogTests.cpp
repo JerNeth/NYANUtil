@@ -41,7 +41,7 @@ namespace nyan
             testing::internal::CaptureStdout();
             std::string inputInfo = "Test";
             {
-                log::info().format(inputInfo);
+                log::info().format_runtime(inputInfo);
             }
             std::string output = testing::internal::GetCapturedStdout();
             EXPECT_EQ(inputInfo + "\n", output);
@@ -107,7 +107,7 @@ namespace nyan
         {
             std::array<uint8_t, 3> color{ 255, 0, 0 };
             int a = 0;
-            log::info().location().format(color, "{} {}", "test", a);
+            log::info().location().format_color(color, "{} {}", "test", a);
         }
         std::string output = testing::internal::GetCapturedStdout();
         EXPECT_TRUE(!output.empty());
@@ -130,12 +130,13 @@ namespace nyan
         class Test {
         public:
             void function(uint32_t value) {
-                auto lambda = [&](auto logger, std::string_view message, auto value2) {
+                auto lambda = [&](auto&& logger, const auto& message, auto value2) {
                     std::array<uint8_t, 3> color{ 255, 0, 0 };
                     int a = 0;
-                    logger.format(message, "World", value2);
+                    logger.format_runtime(message, "World", value2);
                     };
-                lambda(log::info().location(), "Hello {} {}", value);
+                auto str = "Hello {} {}";
+                lambda(log::info().location(), str, value);
             }
         };
         testing::internal::CaptureStdout();
