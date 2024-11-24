@@ -134,6 +134,24 @@ export namespace nyan
 				}
 			}
 		}
+		constexpr void fill(std::span<T> dst) const noexcept {
+			::assert(dst.size() <= popcount());
+			size_t count{ 0 };
+			for_each([&dst, &count](T t) {
+				dst[count++] = t;
+			});
+
+			//constexpr void fill(std::span<std::uint32_t> dst) const noexcept {
+			//	assert(dst.size() <= size());
+			//	auto bitmaskCopy = bitmask;
+			//	size_t count = 0;
+			//	while (bitmaskCopy && count < dst.size()) {
+			//		std::uint32_t idx = std::countr_zero(bitmaskCopy);
+			//		bitmaskCopy ^= 1ull << idx;
+			//		dst[count++] = idx;
+			//	}
+			//}
+		}
 		constexpr bitset& set() noexcept {
 			for (size_t i = 0; i < typeSize; i++) {
 				m_data[i] = static_cast<bitType>(~bitType{ 0 });

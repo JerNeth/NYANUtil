@@ -328,7 +328,8 @@ export namespace nyan
 #else
         std::uint32_t verbosity = static_cast<std::uint32_t>(LoggerType::Verbose) | static_cast<std::uint32_t>(LoggerType::Info) | static_cast<std::uint32_t>(LoggerType::Warn) | static_cast<std::uint32_t>(LoggerType::Error) | static_cast<std::uint32_t>(LoggerType::Critical),
 #endif
-        bool enableDebugOutput = true
+        bool enableDebugOutput = true,
+        bool enableTimestamps = false
     >
     class Logger {
 
