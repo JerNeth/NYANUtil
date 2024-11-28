@@ -54,19 +54,80 @@ export namespace nyan
 		static_assert(bitSize <= std::numeric_limits<impl::robust_underlying_t<T>>::max());
 		//static_assert(std::is_convertible<T, size_t>::value);
 	public:
+
+		struct Iterator
+		{
+			//using iterator_category = std::iter;
+			using difference_type = std::ptrdiff_t;
+			using value_type = T;
+			using const_pointer = const value_type*;  // or also value_type*
+			using const_reference = const value_type&;  // or also value_type&
+
+			value_type operator*() const noexcept { 
+				return static_cast<value_type>(m_bitIdx + m_idx * bitsPerWord);
+			}
+
+			Iterator& operator++() noexcept 
+			{
+				auto mask = ~((((1ull << m_bitIdx) - 1ull) << 1ull) | 1ull);
+				//auto bits = m_ptr[m_idx];
+				//bits &= mask;
+				//for (auto idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
+				//	idx = std::countr_zero(bits);
+				//	m_bitIdx = idx;
+				//	return *this;
+				//}
+				//m_idx++;
+				for (; m_idx < typeSize; m_idx++) {
+					auto bits = m_ptr[m_idx];
+					bits &= mask;
+					for (auto idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
+						idx = std::countr_zero(bits);
+						m_bitIdx = idx;
+						return *this;
+					}
+					mask = ~value_type{ 0ul };
+				}
+				m_idx = typeSize;
+				m_bitIdx = bitsPerWord;
+				return *this;
+			}
+
+			Iterator operator++(int) noexcept { Iterator tmp = *this; ++(*this); return tmp; }
+
+			friend bool operator== (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr == b.m_ptr && a.m_bitIdx == b.m_bitIdx && a.m_idx == b.m_idx; };
+			friend bool operator!= (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr != b.m_ptr || a.m_bitIdx != b.m_bitIdx || a.m_idx != b.m_idx; };
+
+			Iterator() noexcept = default;
+			Iterator(const bitType* p, std::uint32_t idx, std::uint32_t bitIdx) noexcept :
+				m_ptr(p),
+				m_idx(idx),
+				m_bitIdx(bitIdx)
+			{
+			}
+			Iterator(const Iterator& other) noexcept = default;
+		private:
+			const bitType* m_ptr{ nullptr };
+			std::uint32_t m_idx{};
+			std::uint32_t m_bitIdx{};
+		};
+
 		constexpr bitset() noexcept : m_data() {
 			for(auto& data : m_data)
 				data = 0;
 		}
+
 		constexpr bitset(bitType t) noexcept {
 			m_data[0] = t;
 		}
+
 		template<class Head, class... Tail>
 		using are_same = std::conjunction<std::is_same<Head, Tail>...>;
 		template<typename... Tail, class = std::enable_if_t<are_same<T, Tail...>::value, void>>
 		constexpr bitset(Tail... args) noexcept {
 			*this = (*this | ... | args);
 		}
+
 		[[nodiscard]] constexpr bool test(T _idx) const noexcept {
 			const size_t idx = static_cast<size_t>(_idx);
 			::assert(idx < bitSize);
@@ -74,6 +135,7 @@ export namespace nyan
 			const auto bit = 1ull << (idx & bitsMask);
 			return static_cast<decltype(bit)>(word) & bit;
 		}
+
 		[[nodiscard]] constexpr bool only(T _idx) const noexcept {
 			const size_t idx = static_cast<size_t>(_idx);
 			::assert(idx < bitSize);
@@ -96,6 +158,35 @@ export namespace nyan
 			}
 			return true;
 		}
+
+		[[nodiscard]] constexpr Iterator end() const noexcept
+		{
+			static_assert(bitsPerWord <= std::numeric_limits<std::uint32_t>::max());
+			static_assert(typeSize <= std::numeric_limits<std::uint32_t>::max());
+			//for (std::uint32_t i = typeSize - 1; i > 0; --i) {
+			//	auto bits = m_data[i];
+			//	for (std::uint32_t idx = std::countl_zero(bits); bits; bits = (bits << (idx + 1)) >> (idx)) { //turns of rightmost bit (Hacker's Delight)
+			//		idx = std::countl_zero(bits);
+			//		return Iterator{ m_data.data(), i, static_cast<uint32_t>(bitsPerWord) - idx };
+			//	}
+			//}
+			return Iterator{ m_data.data(), typeSize, bitsPerWord};
+		}
+
+		[[nodiscard]] constexpr Iterator begin() const noexcept
+		{
+			static_assert(typeSize <= std::numeric_limits<std::uint32_t>::max());
+			for (std::uint32_t i = 0; i < typeSize; i++) {
+				auto bits = m_data[i];
+				auto offset = bitsPerWord * i;
+				for (std::uint32_t idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
+					idx = std::countr_zero(bits);
+					return Iterator{m_data.data(), i, idx};
+				}
+			}
+			return Iterator{ m_data.data(), typeSize, bitsPerWord };
+		}
+
 		template<class Head, class... Tail>
 		using are_same = std::conjunction<std::is_same<Head, Tail>...>;
 		template<typename... Tail, class = std::enable_if_t<are_same<T, Tail...>::value, void>>
@@ -109,6 +200,7 @@ export namespace nyan
 			}
 			return false;
 		}
+
 		template<class Head, class... Tail>
 		using are_same = std::conjunction<std::is_same<Head, Tail>...>;
 		template<typename... Tail, class = std::enable_if_t<are_same<T, Tail...>::value, void>>
