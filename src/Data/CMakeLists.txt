@@ -9,6 +9,7 @@ target_sources(Data
 		DynamicBitset.cppm
 		Handle.cppm
 		Hash.cppm
+		Id.cppm
 		ModuleSettings.cppm
 		NYANData.cppm
 		Pointer.cppm
