@@ -535,7 +535,6 @@ namespace nyan
         bitsetA.set(Y);
         bitsetA.set(Z);
         bitsetA.set(AA);
-        //bitsetA.set(BA);
         bitsetA.set(BS);
         bitsetA.set(BZ);
 
@@ -545,7 +544,36 @@ namespace nyan
 
         EXPECT_EQ(bitsetA, bitsetB);
 
+        {
+            bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+            for (auto a : bitsetA)
+                bitsetB.flip(a);
 
+            EXPECT_EQ(bitsetA, bitsetB);
+        }
+
+        {
+            bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+            for (auto a : bitsetA)
+                bitsetB.set(a);
+
+            EXPECT_TRUE(bitsetB.test(A));
+            EXPECT_TRUE(bitsetB.test(L));
+            EXPECT_TRUE(bitsetB.test(M));
+            EXPECT_TRUE(bitsetB.test(T));
+            EXPECT_TRUE(bitsetB.test(Y));
+            EXPECT_TRUE(bitsetB.test(Z));
+            EXPECT_TRUE(bitsetB.test(AA));
+            EXPECT_TRUE(bitsetB.test(BS));
+            EXPECT_TRUE(bitsetB.test(BZ));
+        }
+
+        size_t counter{ 0 };
+
+        bitsetA.for_each([&](Test t) {
+                counter++;
+            });
+        EXPECT_EQ(counter, 9);
 
     }
 
@@ -630,7 +658,6 @@ namespace nyan
         };
         using enum Test;
         bitset<static_cast<size_t>(Test::Size), Test> bitsetA;
-        bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
 
         bitsetA.set(A);
         bitsetA.set(L);
@@ -639,19 +666,44 @@ namespace nyan
         bitsetA.set(Y);
         bitsetA.set(Z);
         bitsetA.set(AA);
-        //bitsetA.set(BA);
         bitsetA.set(BO);
         bitsetA.set(BP);
         bitsetA.set(BQ);
         bitsetA.set(BS);
         bitsetA.set(BZ);
 
+        {
+            bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+            for (auto a : bitsetA)
+                bitsetB.flip(a);
+
+            EXPECT_EQ(bitsetA, bitsetB);
+        }
+
+        {
+            bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+            for (auto a : bitsetA)
+                bitsetB.set(a);
+
+            EXPECT_TRUE(bitsetB.test(A));
+            EXPECT_TRUE(bitsetB.test(L));
+            EXPECT_TRUE(bitsetB.test(M));
+            EXPECT_TRUE(bitsetB.test(T));
+            EXPECT_TRUE(bitsetB.test(Y));
+            EXPECT_TRUE(bitsetB.test(Z));
+            EXPECT_TRUE(bitsetB.test(AA));
+            EXPECT_TRUE(bitsetB.test(BO));
+            EXPECT_TRUE(bitsetB.test(BP));
+            EXPECT_TRUE(bitsetB.test(BQ));
+            EXPECT_TRUE(bitsetB.test(BS));
+            EXPECT_TRUE(bitsetB.test(BZ));
+        }
+
+
+        size_t counter{ 0 };
         for (auto a : bitsetA)
-            bitsetB.flip(a);
-
-        EXPECT_EQ(bitsetA, bitsetB);
-
-
+            counter++;
+        EXPECT_EQ(counter, 12);
 
     }
     TEST(BitsetTests, bench) {
@@ -868,5 +920,144 @@ namespace nyan
             auto end = std::chrono::steady_clock::now();
             std::cout << "Array iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
         }
+    }
+    TEST(BitsetTests, hiddenBits) {
+        enum class Test : uint32_t {
+            A,
+            B,
+            C,
+            D,
+            E,
+            F,
+            G,
+            H,
+            I,
+            K,
+            L,
+            M,
+            N,
+            O,
+            P,
+            Q,
+            R,
+            S,
+            T,
+            U,
+            V,
+            W,
+            X,
+            Y,
+            Z,
+            AA,
+            AB,
+            AC,
+            AD,
+            AE,
+            AF,
+            AG,
+            AH,
+            AI,
+            AK,
+            AL,
+            AM,
+            AN,
+            AO,
+            AP,
+            AQ,
+            AR,
+            AS,
+            AT,
+            AU,
+            AV,
+            AW,
+            AX,
+            AY,
+            AZ,
+            BA,
+            BB,
+            BC,
+            BD,
+            BE,
+            BF,
+            BG,
+            BH,
+            BI,
+            BK,
+            BL,
+            BM,
+            BN,
+            BO,
+            BP,
+            BQ,
+            BR,
+            BS,
+            BT,
+            BU,
+            BV,
+            BW,
+            BX,
+            BY,
+            BZ,
+            Size
+        };
+        using enum Test;
+
+        bitset<static_cast<size_t>(Test::Size), Test> bitsetA;
+        bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+
+        for (size_t i = 0; i < static_cast<size_t>(Test::Size); ++i)
+            bitsetA.set(static_cast<Test>(i));
+
+        EXPECT_EQ(bitsetA, ~bitsetB);
+
+        EXPECT_TRUE(bitsetA.all());
+        EXPECT_TRUE(bitsetA.all_of(~bitsetB));
+        EXPECT_TRUE((~bitsetB).all_of(bitsetA));
+        EXPECT_TRUE(bitsetA.any());
+        EXPECT_TRUE(bitsetA.any_of(~bitsetB));
+        EXPECT_TRUE((~bitsetB).any_of(bitsetA));
+
+        size_t counter{ 0 };
+        for (auto a : ~bitsetB)
+            counter++;
+        EXPECT_EQ(counter, static_cast<size_t>(Test::Size));
+
+        size_t counter2{ 0 };
+        (~bitsetB).for_each([&counter2](auto a) {
+                counter2++;
+            });
+        EXPECT_EQ(counter2, static_cast<size_t>(Test::Size));
+
+        {
+            (~bitsetB).for_each([&](auto a) {
+                EXPECT_TRUE(bitsetA.test(a));
+                });
+            for (auto a : ~bitsetB)
+                EXPECT_TRUE(bitsetA.test(a));
+
+            bitsetA.for_each([&](auto a) {
+                EXPECT_TRUE((~bitsetB).test(a));
+                });
+            for (auto a : bitsetA)
+                EXPECT_TRUE((~bitsetB).test(a));
+        }
+        {
+            bitset<static_cast<size_t>(Test::Size), Test> bitsetC;
+
+            for (auto a : bitsetA)
+                bitsetC.set(a);
+            for (size_t i = 0; i < static_cast<size_t>(Test::Size); ++i)
+                bitsetC.test(static_cast<Test>(i));
+        }
+        {
+            bitset<static_cast<size_t>(Test::Size), Test> bitsetC;
+
+            bitsetA.for_each([&](auto a) {
+                bitsetC.set(a);
+                });
+            for (size_t i = 0; i < static_cast<size_t>(Test::Size); ++i)
+                bitsetC.test(static_cast<Test>(i));
+        }
+
     }
 }
