@@ -86,7 +86,7 @@ export namespace nyan
 						m_bitIdx = idx;
 						return *this;
 					}
-					mask = ~value_type{ 0ul };
+					mask = ~bitType{ 0ul };
 				}
 				m_idx = typeSize;
 				m_bitIdx = bitsPerWord;

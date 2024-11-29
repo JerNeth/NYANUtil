@@ -225,8 +225,8 @@ export namespace nyan
 
 		[[nodiscard]] bool push_back(value_type&& value) noexcept requires std::move_constructible< value_type> || std::is_move_assignable_v< value_type> && std::is_default_constructible_v<value_type>
 		{
-			if (m_size >= m_capacity)
-				if (!grow(calc_new_capacity()))
+			if (m_size >= m_capacity) [[unlikely]]
+				if (!grow(calc_new_capacity())) [[unlikely]]
 					return false;
 
 			if constexpr (std::is_trivially_move_constructible_v<value_type>)
@@ -241,8 +241,8 @@ export namespace nyan
 
 		[[nodiscard]] bool push_back(const value_type& value) noexcept requires std::copy_constructible< value_type> || std::is_copy_assignable_v< value_type> && std::is_default_constructible_v<value_type>
 		{
-			if (m_size >= m_capacity)
-				if (!grow(calc_new_capacity()))
+			if (m_size >= m_capacity) [[unlikely]]
+				if (!grow(calc_new_capacity())) [[unlikely]]
 					return false;
 			
 
@@ -260,8 +260,8 @@ export namespace nyan
 		[[nodiscard]] bool emplace_back(Args&&... args) noexcept
 		{
 			static_assert(std::is_nothrow_constructible_v<value_type, Args...>);
-			if (m_size >= m_capacity)
-				if (!grow(calc_new_capacity()))
+			if (m_size >= m_capacity) [[unlikely]]
+				if (!grow(calc_new_capacity())) [[unlikely]]
 					return false;
 
 			std::construct_at(&m_data[m_size++], std::forward<Args>(args)...);
@@ -276,9 +276,6 @@ export namespace nyan
 
 		[[nodiscard]] bool resize(const size_type count) noexcept requires std::is_default_constructible_v< value_type>
 		{
-			if (m_size == count)
-				return true;
-
 			if (m_size < count) {
 				if (!grow(count))
 					return false;
@@ -299,8 +296,6 @@ export namespace nyan
 
 		[[nodiscard]] bool resize(const size_type count, const value_type& value) noexcept requires std::copy_constructible< value_type>
 		{
-			if (m_size == count)
-				return true;
 
 			if (m_size < count) {
 				if (!grow(count))

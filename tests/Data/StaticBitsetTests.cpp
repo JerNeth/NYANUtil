@@ -1,6 +1,8 @@
+#include <gtest/gtest.h>
+#include <array>
+
 import NYANData;
 
-#include <gtest/gtest.h>
 
 namespace nyan
 {
@@ -651,5 +653,220 @@ namespace nyan
 
 
 
+    }
+    TEST(BitsetTests, bench) {
+        enum class Test : uint32_t {
+            A,
+            B,
+            C,
+            D,
+            E,
+            F,
+            G,
+            H,
+            I,
+            K,
+            L,
+            M,
+            N,
+            O,
+            P,
+            Q,
+            R,
+            S,
+            T,
+            U,
+            V,
+            W,
+            X,
+            Y,
+            Z,
+            AA,
+            AB,
+            AC,
+            AD,
+            AE,
+            AF,
+            AG,
+            AH,
+            AI,
+            AK,
+            AL,
+            AM,
+            AN,
+            AO,
+            AP,
+            AQ,
+            AR,
+            AS,
+            AT,
+            AU,
+            AV,
+            AW,
+            AX,
+            AY,
+            AZ,
+            BA,
+            BB,
+            BC,
+            BD,
+            BE,
+            BF,
+            BG,
+            BH,
+            BI,
+            BK,
+            BL,
+            BM,
+            BN,
+            BO,
+            BP,
+            BQ,
+            BR,
+            BS,
+            BT,
+            BU,
+            BV,
+            BW,
+            BX,
+            BY,
+            BZ,
+            Size
+        };
+        using enum Test;
+
+
+        constexpr size_t iters = 10000;
+        constexpr size_t innerIters = 100;
+        {
+
+            auto start = std::chrono::steady_clock::now();
+            srand(0x12789432u);
+            for (uint64_t i = 0; i < iters; i++) {
+                bitset<static_cast<size_t>(Test::Size), Test> bitsetA;
+                bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+
+                for (auto j = 0; j < innerIters; ++j)
+                {
+                    bitsetA.flip(static_cast<Test>(rand() % static_cast<uint32_t>(Test::Size)));
+                }
+                for (auto a : bitsetA)
+                    bitsetB.flip(a);
+
+                EXPECT_EQ(bitsetA, bitsetB);
+            }
+            auto end = std::chrono::steady_clock::now();
+            std::cout << "Iterators iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+        }
+        {
+
+            auto start = std::chrono::steady_clock::now();
+            srand(0x12789432u);
+            for (uint64_t i = 0; i < iters; i++) {
+                bitset<static_cast<size_t>(Test::Size), Test> bitsetA;
+                bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+
+                for (auto j = 0; j < innerIters; ++j)
+                {
+                    bitsetA.flip(static_cast<Test>(rand() % static_cast<uint32_t>(Test::Size)));
+                }
+
+                bitsetA.for_each([&](Test t) {
+                    bitsetB.flip(t); //Doesn't ABA test, but at least tests against even amount of test executions
+                    });
+
+                EXPECT_EQ(bitsetA, bitsetB);
+            }
+            auto end = std::chrono::steady_clock::now();
+            std::cout << "For_each iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+        }
+        {
+
+            auto start = std::chrono::steady_clock::now();
+            srand(0x12789432u);
+            for (uint64_t i = 0; i < iters; i++) {
+                std::array<bool, static_cast<size_t>(Test::Size)> bitsetA{ false };
+                std::array<bool, static_cast<size_t>(Test::Size)> bitsetB{ false };
+
+                for (auto j = 0; j < innerIters; ++j)
+                {
+                    bitsetA[static_cast<size_t>(rand() % static_cast<uint32_t>(Test::Size))] = !bitsetA[static_cast<size_t>(rand() % static_cast<uint32_t>(Test::Size))];
+                }
+
+                for (auto j = 0; j < bitsetA.size(); ++j) {
+                    if(bitsetA[j])
+                        bitsetB[j] = !bitsetB[j];
+                }
+
+                EXPECT_EQ(bitsetA, bitsetB);
+            }
+            auto end = std::chrono::steady_clock::now();
+            std::cout << "Array iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+        }
+        {
+
+            auto start = std::chrono::steady_clock::now();
+            srand(0x12789432u);
+            for (uint64_t i = 0; i < iters; i++) {
+                bitset<static_cast<size_t>(Test::Size), Test> bitsetA;
+                bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+
+                for (auto j = 0; j < innerIters; ++j)
+                {
+                    bitsetA.flip(static_cast<Test>(rand() % static_cast<uint32_t>(Test::Size)));
+                }
+                for (auto a : bitsetA)
+                    bitsetB.flip(a);
+
+                EXPECT_EQ(bitsetA, bitsetB);
+            }
+            auto end = std::chrono::steady_clock::now();
+            std::cout << "Iterators iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+        }
+        {
+
+            auto start = std::chrono::steady_clock::now();
+            srand(0x12789432u);
+            for (uint64_t i = 0; i < iters; i++) {
+                bitset<static_cast<size_t>(Test::Size), Test> bitsetA;
+                bitset<static_cast<size_t>(Test::Size), Test> bitsetB;
+
+                for (auto j = 0; j < innerIters; ++j)
+                {
+                    bitsetA.flip(static_cast<Test>(rand() % static_cast<uint32_t>(Test::Size)));
+                }
+
+                bitsetA.for_each([&](Test t) {
+                    bitsetB.flip(t); //Doesn't ABA test, but at least tests against even amount of test executions
+                    });
+
+                EXPECT_EQ(bitsetA, bitsetB);
+            }
+            auto end = std::chrono::steady_clock::now();
+            std::cout << "For_each iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+        }
+        {
+
+            auto start = std::chrono::steady_clock::now();
+            srand(0x12789432u);
+            for (uint64_t i = 0; i < iters; i++) {
+                std::array<bool, static_cast<size_t>(Test::Size)> bitsetA{ false };
+                std::array<bool, static_cast<size_t>(Test::Size)> bitsetB{ false };
+
+                for (auto j = 0; j < innerIters; ++j)
+                {
+                    bitsetA[static_cast<size_t>(rand() % static_cast<uint32_t>(Test::Size))] = !bitsetA[static_cast<size_t>(rand() % static_cast<uint32_t>(Test::Size))];
+                }
+
+                for (auto j = 0; j < bitsetA.size(); ++j) {
+                    if (bitsetA[j])
+                        bitsetB[j] = !bitsetB[j];
+                }
+
+                EXPECT_EQ(bitsetA, bitsetB);
+            }
+            auto end = std::chrono::steady_clock::now();
+            std::cout << "Array iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+        }
     }
 }

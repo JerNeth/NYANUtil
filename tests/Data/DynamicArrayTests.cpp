@@ -5,6 +5,46 @@ import NYANData;
 
 namespace nyan
 {
+	class NonTrivialClass
+	{
+	public:
+		explicit NonTrivialClass(uint32_t a) noexcept :
+			m_a(a)
+		{
+
+		}
+		NonTrivialClass(const NonTrivialClass& other) noexcept :
+			m_a(other.m_a)
+		{
+
+		}
+		NonTrivialClass(const NonTrivialClass&& other) noexcept :
+			m_a(other.m_a)
+		{
+
+		}
+		NonTrivialClass& operator=(const NonTrivialClass& other) noexcept
+		{
+			m_a = other.m_a;
+			return *this;
+		}
+		NonTrivialClass& operator=(const NonTrivialClass&& other) noexcept
+		{
+			m_a = other.m_a;
+			return *this;
+		}
+		~NonTrivialClass()
+		{
+			destructorCount++;
+		}
+		operator uint32_t() const noexcept
+		{
+			return m_a;
+		}
+		inline static uint32_t destructorCount = 0;
+	private:
+		uint32_t m_a;
+	};
 	struct alignas(64) test {
 		int b;
 		int c;
@@ -77,46 +117,6 @@ namespace nyan
 		}
 
 	}
-	class NonTrivialClass
-	{
-	public:
-		explicit NonTrivialClass(uint32_t a) noexcept :
-			m_a(a)
-		{
-
-		}
-		NonTrivialClass(const NonTrivialClass& other) noexcept :
-			m_a(other.m_a)
-		{
-
-		}
-		NonTrivialClass(const NonTrivialClass&& other) noexcept :
-			m_a(other.m_a)
-		{
-
-		}
-		NonTrivialClass& operator=(const NonTrivialClass& other) noexcept
-		{
-			m_a = other.m_a;
-			return *this;
-		}
-		NonTrivialClass& operator=(const NonTrivialClass&& other) noexcept
-		{
-			m_a = other.m_a;
-			return *this;
-		}
-		~NonTrivialClass()
-		{
-			destructorCount++;
-		}
-		operator uint32_t() const noexcept
-		{
-			return m_a;
-		}
-		inline static uint32_t destructorCount = 0;
-	private:
-		uint32_t m_a;
-	};
 	class MoveOnlyClass
 	{
 	public:
@@ -352,16 +352,19 @@ namespace nyan
 
 	TEST(DynamicArrayTests, benchVsVector) {
 
-		uint32_t iters = (1 << 10) + (std::rand()% 1024);
-		
+		uint32_t iters = (1 << 12) + (std::rand() % 1024);
+
 
 		{
 			auto start = std::chrono::steady_clock::now();
 			DynamicArray<NonTrivialClass> a;
+			a.reserve(iters);
 			for (uint32_t i = 0; i < iters; i++) {
-				if (!a.push_back(NonTrivialClass(i)))
-					EXPECT_EQ(a[5], 0);
-				
+
+				nyan::ignore = a.push_back(NonTrivialClass(i));
+				//if (!a.push_back(NonTrivialClass(i)))
+				//	EXPECT_EQ(a[5], 0);
+
 			}
 			auto end = std::chrono::steady_clock::now();
 			std::cout << "DynArray pushBack took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
@@ -370,6 +373,7 @@ namespace nyan
 		{
 			auto start = std::chrono::steady_clock::now();
 			std::vector<NonTrivialClass> a;
+			a.reserve(iters);
 			for (uint32_t i = 0; i < iters; i++) {
 				a.push_back(NonTrivialClass(i));
 			}
@@ -379,9 +383,11 @@ namespace nyan
 		{
 			auto start = std::chrono::steady_clock::now();
 			DynamicArray<NonTrivialClass> a;
+			a.reserve(iters);
 			for (uint32_t i = 0; i < iters; i++) {
-				if (!a.emplace_back(i))
-					EXPECT_EQ(a[5], 0);
+				nyan::ignore = a.emplace_back(i);
+				//if (!a.emplace_back(i))
+				//	EXPECT_EQ(a[5], 0);
 			}
 			auto end = std::chrono::steady_clock::now();
 			std::cout << "DynArray emplaceBack took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
@@ -390,6 +396,7 @@ namespace nyan
 		{
 			auto start = std::chrono::steady_clock::now();
 			std::vector<NonTrivialClass> a;
+			a.reserve(iters);
 			for (uint32_t i = 0; i < iters; i++) {
 				a.emplace_back(i);
 			}
@@ -399,9 +406,11 @@ namespace nyan
 
 		{
 			DynamicArray<NonTrivialClass> a;
+			a.reserve(iters);
 			for (uint32_t i = 0; i < iters; i++) {
-				if (!a.emplace_back(i))
-					EXPECT_EQ(a[5], 0);
+				nyan::ignore = a.emplace_back(i);
+				//if (!a.emplace_back(i))
+				//	EXPECT_EQ(a[5], 0);
 			}
 			NonTrivialClass::destructorCount = 0;
 			auto start = std::chrono::steady_clock::now();
@@ -413,6 +422,7 @@ namespace nyan
 
 		{
 			std::vector<NonTrivialClass> a;
+			a.reserve(iters);
 			for (uint32_t i = 0; i < iters; i++) {
 				a.emplace_back(i);
 			}
@@ -421,19 +431,21 @@ namespace nyan
 			auto end = std::chrono::steady_clock::now();
 			std::cout << "Vector clear took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
 		}
-		{
-			//DynArray<std::string> a;
-			//auto start = std::chrono::steady_clock::now();
-			//for (uint32_t i = 0; i < iters; i++) {
-			//	if (!a.emplace_back(std::to_string(i)))
-			//		EXPECT_TRUE(!a[5].compare("5"));
-			//}
-			//auto end = std::chrono::steady_clock::now();
-			//std::cout << "DynArray clear took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
-		}
+		//{
+		//	DynamicArray<std::string> a;
+		//	auto start = std::chrono::steady_clock::now();
+		//	for (uint32_t i = 0; i < iters; i++) {
+		//		nyan::ignore = a.emplace_back(std::to_string(i));
+		//		//if (!a.emplace_back(std::to_string(i)))
+		//		//	EXPECT_TRUE(!a[5].compare("5"));
+		//	}
+		//	auto end = std::chrono::steady_clock::now();
+		//	std::cout << "DynArray clear took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		//}
 
 		{
 			std::vector<std::string> a;
+			a.reserve(iters);
 			auto start = std::chrono::steady_clock::now();
 			for (uint32_t i = 0; i < iters; i++) {
 				a.emplace_back(std::to_string(i));
@@ -442,33 +454,76 @@ namespace nyan
 			std::cout << "Vector clear took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
 		}
 
-		const uint64_t itxes = (1<<10) + (rand() & 0x7);
-
+		const uint64_t itxes = (1 << 11) + (rand() & 0x7);
+		constexpr size_t num = 0x327;
 		{
 			std::vector<uint64_t> ab;
+			ab.reserve(iters);
 			for (uint64_t i = 0; i < iters; i++) {
 				ab.push_back(i);
 			}
+			srand(0x2143);
 			uint64_t sum = 0;
 			auto start = std::chrono::steady_clock::now();
 			for (uint32_t itx = 0; itx < itxes; ++itx)
 				for (auto as : ab)
-					sum += as;
+					if (as % num)
+						sum += as;
 			auto end = std::chrono::steady_clock::now();
 			std::cout << sum << " Vector iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
 		}
 		{
 			DynamicArray<uint64_t> ab;
+			ab.reserve(iters);
 			for (uint64_t i = 0; i < iters; i++) {
-				if (!ab.push_back(i))
-					EXPECT_EQ(1, 0);
+				nyan::ignore = ab.push_back(i);
+				//if (!ab.push_back(i))
+				//	EXPECT_EQ(1, 0);
 
 			}
+			srand(0x2143);
 			uint64_t sum = 0;
 			auto start = std::chrono::steady_clock::now();
 			for (uint32_t itx = 0; itx < itxes; ++itx)
 				for (auto as : ab)
-					sum += as;
+					if (as % num)
+						sum += as;
+			auto end = std::chrono::steady_clock::now();
+			std::cout << sum << " DynArray iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+		{
+			std::vector<uint64_t> ab;
+			ab.reserve(iters);
+			for (uint64_t i = 0; i < iters; i++) {
+				ab.push_back(i);
+			}
+			ab.begin();
+			srand(0x2143);
+			uint64_t sum = 0;
+			auto start = std::chrono::steady_clock::now();
+			for (uint32_t itx = 0; itx < itxes; ++itx)
+				for (uint64_t i = 0; i < ab.size(); i++)
+					if (ab[i] % num)
+						sum += ab[i];
+			auto end = std::chrono::steady_clock::now();
+			std::cout << sum << " Vector iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
+		}
+		{
+			DynamicArray<uint64_t> ab;
+			ab.reserve(iters);
+			for (uint64_t i = 0; i < iters; i++) {
+				nyan::ignore = ab.push_back(i);
+				//if (!ab.push_back(i))
+				//	EXPECT_EQ(1, 0);
+
+			}
+			srand(0x2143);
+			uint64_t sum = 0;
+			auto start = std::chrono::steady_clock::now();
+			for (uint32_t itx = 0; itx < itxes; ++itx)
+				for (uint64_t i = 0; i < ab.size(); i++)
+					if(ab[i]% num)
+						sum += ab[i];
 			auto end = std::chrono::steady_clock::now();
 			std::cout << sum << " DynArray iterate took: " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "microseconds\n";
 		}
