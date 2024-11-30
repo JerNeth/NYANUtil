@@ -87,20 +87,19 @@ export namespace nyan
 				for (; m_idx < (typeSize - 1); m_idx++) {
 					auto bits = m_ptr[m_idx];
 					bits &= mask;
-					for (auto idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
-						idx = std::countr_zero(bits);
-						m_bitIdx = idx;
+					if (bits) {
+						m_bitIdx = std::countr_zero(bits);
 						return *this;
 					}
 					mask = ~bitType{ 0ul };
 				}
 
 				auto bits = m_ptr[m_idx] & tailBitsMask & mask;
-				for (auto idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
-					idx = std::countr_zero(bits);
-					m_bitIdx = idx;
+				if (bits) {
+					m_bitIdx = std::countr_zero(bits);
 					return *this;
 				}
+
 
 				m_idx = typeSize;
 				m_bitIdx = bitsPerWord;
@@ -181,21 +180,12 @@ export namespace nyan
 		{
 			static_assert(typeSize <= std::numeric_limits<std::uint32_t>::max());
 			std::uint32_t i = 0;
-			for (; i < (typeSize - 1); i++) {
-				auto bits = m_data[i];
-				auto offset = bitsPerWord * i;
-				for (std::uint32_t idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
-					idx = std::countr_zero(bits);
-					return Iterator{m_data.data(), i, idx};
-				}
-			}
+			for (; i < (typeSize - 1); i++)
+				if(auto bits = m_data[i]; bits)
+					return Iterator{m_data.data(), i, static_cast<std::uint32_t>(std::countr_zero(bits)) };
 
-			auto bits = m_data[i] & tailBitsMask;
-			auto offset = bitsPerWord * i;
-			for (std::uint32_t idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
-				idx = std::countr_zero(bits);
-				return Iterator{ m_data.data(), i, idx };
-			}
+			if (auto bits = m_data[i] & tailBitsMask; bits)
+				return Iterator{ m_data.data(), i, static_cast<std::uint32_t>(std::countr_zero(bits)) };
 
 			return Iterator{ m_data.data(), typeSize, bitsPerWord };
 		}
@@ -346,7 +336,7 @@ export namespace nyan
 
 			return ret;
 		}
-		[[nodiscard, deprecated("use to_64")]] constexpr unsigned long long to_ullong() const noexcept
+		[[nodiscard, deprecated("use to_u64")]] constexpr unsigned long long to_ullong() const noexcept
 		{
 			if constexpr (typeSize == 0)
 				return 0;

@@ -167,7 +167,7 @@ export namespace nyan
 			::assert(init.size() <= Capacity);
 
 			if constexpr (std::is_trivially_copyable_v<value_type>)
-				std::memcpy(m_data.data(), std::data(init), (m_size = std::min(init.size(), Capacity)) * sizeof(value_type));
+				std::memcpy(m_data.data(), std::data(init), (m_size = static_cast<decltype(m_size)>(std::min(init.size(), Capacity))) * sizeof(value_type));
 			else if constexpr (std::is_nothrow_copy_constructible_v<value_type>)
 				for (auto x : init)
 					std::construct_at(reinterpret_cast<value_type*>(m_data.data()) + m_size++, x);
@@ -222,7 +222,7 @@ export namespace nyan
 			else {
 				m_data = other.m_data;
 			}
-			m_size = std::exchange(other.m_size, 0);
+			m_size = std::exchange(other.m_size, size_type{0u});
 
 		}
 

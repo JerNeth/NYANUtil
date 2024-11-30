@@ -516,13 +516,12 @@ export namespace nyan
 
         }
         [[nodiscard]] auto stream() const noexcept {
-            if constexpr (type == LoggerType::Error || type == LoggerType::Critical) {
+            if constexpr (type == LoggerType::Error || type == LoggerType::Critical)
                 return stderr;
-            }
-            if constexpr (type == LoggerType::Info) {
+            else if constexpr (type == LoggerType::Info)
                 return stdout;
-            }
-            return stdout;
+            else
+                return stdout;
         }
 
         void filter(auto fun) noexcept {
