@@ -405,6 +405,16 @@ export namespace nyan
 			return (m_data[i] & tailBitsMask) == tailBitsMask;
 		}
 
+		[[nodiscard]] static constexpr bitset none() noexcept 
+		{
+			return bitset{};
+		}
+
+		[[nodiscard]] static constexpr bitset all() noexcept
+		{
+			return ~bitset{};
+		}
+
 		constexpr bitset& flip() noexcept 
 		{
 			for (size_t i = 0; i < typeSize; i++)
