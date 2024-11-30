@@ -1028,6 +1028,7 @@ namespace nyan
             });
         EXPECT_EQ(counter2, static_cast<size_t>(Test::Size));
 
+        auto a = bitsetA.to_ulong();
         {
             (~bitsetB).for_each([&](auto a) {
                 EXPECT_TRUE(bitsetA.test(a));

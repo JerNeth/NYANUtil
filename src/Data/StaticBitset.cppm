@@ -346,7 +346,7 @@ export namespace nyan
 
 			return ret;
 		}
-		[[nodiscard]] constexpr unsigned long long to_ullong() const noexcept 
+		[[nodiscard, deprecated("use to_64")]] constexpr unsigned long long to_ullong() const noexcept
 		{
 			if constexpr (typeSize == 0)
 				return 0;
@@ -356,7 +356,17 @@ export namespace nyan
 				return m_data[0];
 			
 		}
-		[[nodiscard]] constexpr unsigned long to_ulong() const noexcept 
+		[[nodiscard, deprecated("use to_u32")]] constexpr unsigned long to_ulong() const noexcept
+		{
+			if constexpr (typeSize == 0)
+				return 0;
+			else if constexpr (typeSize == 1)
+				return m_data[0] & tailBitsMask;
+			else
+				return m_data[0];
+		}
+
+		[[nodiscard]] constexpr std::uint64_t to_u64() const noexcept
 		{
 			if constexpr (typeSize == 0)
 				return 0;
@@ -366,6 +376,16 @@ export namespace nyan
 				return m_data[0];
 
 		}
+		[[nodiscard]] constexpr std::uint32_t to_u32() const noexcept
+		{
+			if constexpr (typeSize == 0)
+				return 0;
+			else if constexpr (typeSize == 1)
+				return m_data[0] & tailBitsMask;
+			else
+				return m_data[0];
+		}
+
 		[[nodiscard]] constexpr size_t size() const noexcept 
 		{
 			return popcount();
