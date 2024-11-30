@@ -152,28 +152,15 @@ export namespace nyan
 			return static_cast<decltype(bit)>(word) & bit;
 		}
 
-		[[nodiscard]] constexpr bool only(T _idx) const noexcept 
+		[[nodiscard]] constexpr bool has_single_bit() const noexcept 
 		{
-			const size_t idx = static_cast<size_t>(_idx);
-			::assert(idx < bitSize);
-			if constexpr (typeSize > 1) {
-				for (size_t i = 0; i < (idx >> bitsPerWordBitPos); i++) {
-					if (m_data[i] != 0)
-						return false;
-				}
-			}
-			auto& word = m_data[idx >> bitsPerWordBitPos];
-			const auto bit = 1ull << (idx & bitsMask);
-			if (static_cast<decltype(bit)>(word) != bit)
-				return false;
+			return popcount() == 1ull;
+		}
 
-			if constexpr (typeSize > 1) {
-				for (size_t i = (idx >> bitsPerWordBitPos) + 1; i < typeSize; i++) {
-					if (m_data[i] != 0)
-						return false;
-				}
-			}
-			return true;
+		[[nodiscard]] constexpr bool only(T idx) const noexcept
+		{
+			::assert(static_cast<size_t>(idx) < bitSize);
+			return test(idx) && has_single_bit();
 		}
 
 		[[nodiscard]] constexpr Iterator end() const noexcept

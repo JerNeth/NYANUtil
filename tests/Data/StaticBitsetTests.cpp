@@ -1047,7 +1047,7 @@ namespace nyan
             for (auto a : bitsetA)
                 bitsetC.set(a);
             for (size_t i = 0; i < static_cast<size_t>(Test::Size); ++i)
-                bitsetC.test(static_cast<Test>(i));
+                EXPECT_TRUE(bitsetC.test(static_cast<Test>(i)));
         }
         {
             bitset<static_cast<size_t>(Test::Size), Test> bitsetC;
@@ -1056,7 +1056,18 @@ namespace nyan
                 bitsetC.set(a);
                 });
             for (size_t i = 0; i < static_cast<size_t>(Test::Size); ++i)
-                bitsetC.test(static_cast<Test>(i));
+                EXPECT_TRUE(bitsetC.test(static_cast<Test>(i)));
+        }
+
+        {
+            bitset<static_cast<size_t>(Test::Size), Test> bitsetC;
+
+            bitsetC = ~bitsetC;
+
+            for (size_t i = 0; i < static_cast<size_t>(Test::Size); ++i)
+                bitsetC.reset(static_cast<Test>(i));
+            bitsetC.set(Test::BY);
+            EXPECT_TRUE(bitsetC.only(Test::BY));
         }
 
     }
