@@ -180,7 +180,7 @@ export namespace nyan
 			clear();
 		}
 
-		constexpr StaticVector(size_type count) noexcept requires std::is_nothrow_default_constructible_v<value_type>
+		constexpr StaticVector(size_t count) noexcept requires std::is_nothrow_default_constructible_v<value_type>
 		{
 			::assert(Capacity >= count);
 
@@ -195,7 +195,7 @@ export namespace nyan
 				return StaticVector{};
 
 
-			const size_type dataSize = m_size * sizeof(value_type);
+			const size_t dataSize = m_size * sizeof(value_type);
 
 			alignas(alignof(T)) array_type data;
 
@@ -230,7 +230,7 @@ export namespace nyan
 		{
 			if (this != std::addressof(other)) 
 			{
-				const size_type dataSize = other.m_size * sizeof(value_type);
+				const size_t dataSize = other.m_size * sizeof(value_type);
 
 				if constexpr (!std::is_trivially_destructible_v<value_type>)
 					clear();
@@ -260,7 +260,7 @@ export namespace nyan
 				}
 				else {
 					clear();
-					for (size_type i = 0; i < other.m_size; ++i)
+					for (size_t i = 0; i < other.m_size; ++i)
 						nyan::ignore = std::construct_at(&operator[](m_size++), std::move(other[i]));
 					other.m_size = 0;
 				}
@@ -345,12 +345,12 @@ export namespace nyan
 		}
 
 
-		[[nodiscard]] constexpr size_type capacity() const noexcept
+		[[nodiscard]] constexpr size_t capacity() const noexcept
 		{
 			return Capacity;
 		}
 
-		[[nodiscard]] constexpr size_type size() const noexcept
+		[[nodiscard]] constexpr size_t size() const noexcept
 		{
 			return m_size;
 		}
@@ -361,13 +361,13 @@ export namespace nyan
 		}
 
 
-		[[nodiscard]] constexpr reference operator[](size_type idx) noexcept
+		[[nodiscard]] constexpr reference operator[](size_t idx) noexcept
 		{
 			::assert(m_size > idx);
 			return data()[idx];
 		}
 
-		[[nodiscard]] constexpr const_reference operator[](size_type idx) const noexcept
+		[[nodiscard]] constexpr const_reference operator[](size_t idx) const noexcept
 		{
 			::assert(m_size > idx);
 			return data()[idx];
@@ -434,16 +434,17 @@ export namespace nyan
 		{
 			static_assert(std::is_nothrow_destructible_v<value_type>);
 			if constexpr (!std::is_trivially_destructible<T>())
-				for (size_type i = 0; i < m_size; ++i)
+				for (size_t i = 0; i < m_size; ++i)
 					operator[](i).~value_type();
 			m_size = 0;
 		}
 	private:
 
-		constexpr StaticVector(array_type data, size_type size) noexcept :
+		constexpr StaticVector(array_type data, size_t size) noexcept :
 			m_data(std::move(data)),
 			m_size(size)
 		{
+			::assert(size <= std::numeric_limits<size_type>::max());
 
 		}
 
