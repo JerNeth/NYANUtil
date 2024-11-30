@@ -1010,10 +1010,10 @@ namespace nyan
 
         EXPECT_EQ(bitsetA, ~bitsetB);
 
-        EXPECT_TRUE(bitsetA.all());
+        EXPECT_TRUE(bitsetA.has_all());
         EXPECT_TRUE(bitsetA.all_of(~bitsetB));
         EXPECT_TRUE((~bitsetB).all_of(bitsetA));
-        EXPECT_TRUE(bitsetA.any());
+        EXPECT_TRUE(bitsetA.has_any());
         EXPECT_TRUE(bitsetA.any_of(~bitsetB));
         EXPECT_TRUE((~bitsetB).any_of(bitsetA));
 

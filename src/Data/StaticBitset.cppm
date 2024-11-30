@@ -333,7 +333,7 @@ export namespace nyan
 		}
 		[[nodiscard]] constexpr operator bool() const noexcept 
 		{
-			return any();
+			return has_any();
 		}
 		[[nodiscard]] constexpr size_t popcount() const noexcept 
 		{
@@ -374,7 +374,7 @@ export namespace nyan
 		{
 			return bitSize;
 		}
-		[[nodiscard]] constexpr bool any() const noexcept 
+		[[nodiscard]] constexpr bool has_any() const noexcept 
 		{
 			size_t i = 0;
 			for (; i < (typeSize - 1); i++)
@@ -383,7 +383,7 @@ export namespace nyan
 			
 			return (m_data[i] & tailBitsMask) != bitType{ 0u };
 		}
-		[[nodiscard]] constexpr bool none() const noexcept 
+		[[nodiscard]] constexpr bool has_none() const noexcept 
 		{
 			size_t i = 0;
 			for (; i < (typeSize - 1); i++)
@@ -392,7 +392,7 @@ export namespace nyan
 			
 			return (m_data[i] & tailBitsMask) == bitType{ 0u };
 		}
-		[[nodiscard]] constexpr bool all() const noexcept 
+		[[nodiscard]] constexpr bool has_all() const noexcept 
 		{
 			if constexpr (bitSize == 0)
 				return true;
@@ -404,6 +404,7 @@ export namespace nyan
 
 			return (m_data[i] & tailBitsMask) == tailBitsMask;
 		}
+
 		constexpr bitset& flip() noexcept 
 		{
 			for (size_t i = 0; i < typeSize; i++)
