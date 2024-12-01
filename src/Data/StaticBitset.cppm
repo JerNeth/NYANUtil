@@ -47,13 +47,14 @@ export namespace nyan
 	template<size_t bitSize, typename T = size_t> // typename for indices e.g. enums
 	class bitset {
 		using bitType = impl::smallest_fitting_uint<bitSize>::type;
-		static constexpr size_t bitsPerWord = (sizeof(bitType) * 8);
-		static constexpr size_t bitsPerWordBitPos = std::countr_zero(bitsPerWord);
+		static constexpr bitType bitsPerWord = (sizeof(bitType) * 8);
+		static_assert(std::countr_zero(bitsPerWord) > 0);
+		static constexpr bitType bitsPerWordBitPos = static_cast<bitType>(std::countr_zero(bitsPerWord));
 		static_assert(std::has_single_bit(bitsPerWord));
-		static constexpr size_t bitsMask = bitsPerWord - 1;
-		static constexpr size_t typeSize = bitSize / bitsPerWord + (bitSize % bitsPerWord != 0);
-		static constexpr size_t lastWordBitSize = bitSize - ((typeSize - 1) * bitsPerWord);
-		static constexpr size_t tailBitsMask = (1ull << lastWordBitSize) - 1;
+		static constexpr bitType bitsMask = bitsPerWord - 1;
+		static constexpr bitType typeSize = bitSize / bitsPerWord + (bitSize % bitsPerWord != 0);
+		static constexpr bitType lastWordBitSize = bitSize - ((typeSize - 1) * bitsPerWord);
+		static constexpr bitType tailBitsMask = (1ull << lastWordBitSize) - 1;
 
 		static_assert(typeSize > 0);
 		static_assert(bitSize <= std::numeric_limits<impl::robust_underlying_t<T>>::max());
@@ -68,57 +69,41 @@ export namespace nyan
 			using const_pointer = const value_type*;  // or also value_type*
 			using const_reference = const value_type&;  // or also value_type&
 
-			value_type operator*() const noexcept 
+			constexpr value_type operator*() const noexcept 
 			{ 
 				return static_cast<value_type>(m_bitIdx + m_idx * bitsPerWord);
 			}
 
-			Iterator& operator++() noexcept 
+			constexpr Iterator& operator++() noexcept
 			{
-				auto mask = ~((((1ull << m_bitIdx) - 1ull) << 1ull) | 1ull);
-				//auto bits = m_ptr[m_idx];
-				//bits &= mask;
-				//for (auto idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
-				//	idx = std::countr_zero(bits);
-				//	m_bitIdx = idx;
-				//	return *this;
-				//}
-				//m_idx++;
+				auto mask = (~bitType{ 1ul } << m_bitIdx);
+
 				for (; m_idx < (typeSize - 1); m_idx++) {
-					auto bits = m_ptr[m_idx];
-					bits &= mask;
-					if (bits) {
-						m_bitIdx = std::countr_zero(bits);
+					if (auto bits = m_ptr[m_idx] & mask; bits) {
+						m_bitIdx = std::countr_zero(static_cast<bitType>(bits ));
 						return *this;
 					}
 					mask = ~bitType{ 0ul };
 				}
 
-				auto bits = m_ptr[m_idx] & tailBitsMask & mask;
-				if (bits) {
-					m_bitIdx = std::countr_zero(bits);
-					return *this;
-				}
+				m_bitIdx = std::countr_zero(static_cast<bitType>( m_ptr[m_idx] & tailBitsMask & mask ));
 
-
-				m_idx = typeSize;
-				m_bitIdx = bitsPerWord;
 				return *this;
 			}
 
-			Iterator operator++(int) noexcept { Iterator tmp = *this; ++(*this); return tmp; }
+			constexpr Iterator operator++(int) noexcept { Iterator tmp = *this; ++(*this); return tmp; }
 
-			friend bool operator== (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr == b.m_ptr && a.m_bitIdx == b.m_bitIdx && a.m_idx == b.m_idx; };
-			friend bool operator!= (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr != b.m_ptr || a.m_bitIdx != b.m_bitIdx || a.m_idx != b.m_idx; };
+			constexpr friend bool operator== (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr == b.m_ptr && a.m_bitIdx == b.m_bitIdx && a.m_idx == b.m_idx; };
+			constexpr friend bool operator!= (const Iterator& a, const Iterator& b) noexcept { return a.m_ptr != b.m_ptr || a.m_bitIdx != b.m_bitIdx || a.m_idx != b.m_idx; };
 
-			Iterator() noexcept = default;
-			Iterator(const bitType* p, std::uint32_t idx, std::uint32_t bitIdx) noexcept :
+			constexpr Iterator() noexcept = default;
+			constexpr Iterator(const bitType* p, std::uint32_t idx, std::uint32_t bitIdx) noexcept :
 				m_ptr(p),
 				m_idx(idx),
 				m_bitIdx(bitIdx)
 			{
 			}
-			Iterator(const Iterator& other) noexcept = default;
+			constexpr Iterator(const Iterator& other) noexcept = default;
 		private:
 			const bitType* m_ptr{ nullptr };
 			std::uint32_t m_idx{};
@@ -164,30 +149,26 @@ export namespace nyan
 
 		[[nodiscard]] constexpr Iterator end() const noexcept
 		{
+			if constexpr (typeSize == 0)
+				return Iterator{ nullptr, 0, 1 };
 			static_assert(bitsPerWord <= std::numeric_limits<std::uint32_t>::max());
 			static_assert(typeSize <= std::numeric_limits<std::uint32_t>::max());
-			//for (std::uint32_t i = typeSize - 1; i > 0; --i) {
-			//	auto bits = m_data[i];
-			//	for (std::uint32_t idx = std::countl_zero(bits); bits; bits = (bits << (idx + 1)) >> (idx)) { //turns of rightmost bit (Hacker's Delight)
-			//		idx = std::countl_zero(bits);
-			//		return Iterator{ m_data.data(), i, static_cast<uint32_t>(bitsPerWord) - idx };
-			//	}
-			//}
-			return Iterator{ m_data.data(), typeSize, bitsPerWord};
+			static_assert(typeSize > 0);
+			return Iterator{ m_data.data(), typeSize - 1, bitsPerWord};
 		}
 
 		[[nodiscard]] constexpr Iterator begin() const noexcept
 		{
+			if constexpr(typeSize == 0)
+				return Iterator{ nullptr, 0, 1 };
 			static_assert(typeSize <= std::numeric_limits<std::uint32_t>::max());
+			static_assert(typeSize > 0);
 			std::uint32_t i = 0;
 			for (; i < (typeSize - 1); i++)
 				if(auto bits = m_data[i]; bits)
 					return Iterator{m_data.data(), i, static_cast<std::uint32_t>(std::countr_zero(bits)) };
 
-			if (auto bits = m_data[i] & tailBitsMask; bits)
-				return Iterator{ m_data.data(), i, static_cast<std::uint32_t>(std::countr_zero(bits)) };
-
-			return Iterator{ m_data.data(), typeSize, bitsPerWord };
+			return Iterator{ m_data.data(), i, static_cast<std::uint32_t>(std::countr_zero(static_cast<bitType>(m_data[i] & tailBitsMask))) };
 		}
 
 
@@ -240,21 +221,21 @@ export namespace nyan
 		}
 		template<class Fun>
 		requires impl::Callable< Fun, T>
-		constexpr void for_each(Fun&& fun) const noexcept 
+		[[deprecated("Prefer iterators instead")]] constexpr void for_each(Fun&& fun) const noexcept
 		{
 			size_t i = 0;
 			for (; i < (typeSize - 1); i++) {
 				auto bits = m_data[i];
 				auto offset = bitsPerWord * i;
-				for (auto idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
-					idx = std::countr_zero(bits);
+				for (auto idx = std::countr_zero(static_cast<bitType>(bits)); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
+					idx = std::countr_zero(static_cast<bitType>(bits));
 					fun(static_cast<T>(idx + offset));
 				}
 			}
 			auto bits = m_data[i] & tailBitsMask;
 			auto offset = bitsPerWord * i;
-			for (auto idx = std::countr_zero(bits); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
-				idx = std::countr_zero(bits);
+			for (auto idx = std::countr_zero(static_cast<bitType>(bits)); bits; bits &= (bits - 1)) { //turns of rightmost bit (Hacker's Delight)
+				idx = std::countr_zero(static_cast<bitType>(bits) );
 				fun(static_cast<T>(idx + offset));
 			}
 		}
@@ -332,7 +313,7 @@ export namespace nyan
 			for (; i < (typeSize - 1); i++)
 				ret += std::popcount(m_data[i]);
 
-			ret += std::popcount(m_data[i] & tailBitsMask);
+			ret += std::popcount(static_cast<bitType>(m_data[i] & tailBitsMask));
 
 			return ret;
 		}
