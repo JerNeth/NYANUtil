@@ -243,9 +243,8 @@ export namespace nyan
 		{
 			::assert(dst.size() <= popcount());
 			size_t count{ 0 };
-			for_each([&dst, &count](T t) {
+			for (auto t : *this)
 				dst[count++] = t;
-			});
 
 			//constexpr void fill(std::span<std::uint32_t> dst) const noexcept {
 			//	assert(dst.size() <= size());
